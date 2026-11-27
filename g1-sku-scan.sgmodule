@@ -1,9 +1,9 @@
 #!name=G1 SKU Scan
-#!desc=采集 one.google.com 响应中的候选 SKU，保持响应原文；在本机报告页查看与导出
+#!desc=Mengumpulkan kandidat SKU dalam respons one.google.com sambil mempertahankan isi respons asli; lihat dan ekspor di halaman laporan lokal
 #!system=ios
 
 [Rule]
-# 与旧模块相同：拦截 UDP 443，作用于使用该配置的流量。
+# Sama seperti modul lama: memblokir UDP 443 pada lalu lintas yang menggunakan konfigurasi ini.
 AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT-NO-DROP
 
 [Script]

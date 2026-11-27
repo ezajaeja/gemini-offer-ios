@@ -1,9 +1,9 @@
 #!name=G1 Pro Annual Test
-#!desc=v7.6.0 兼容入口：引用 G1 ACQ 同一三档脚本，支持 Ultra 1个月免费试用，20TB g1.20tb.1month_eft.acq、30TB g1.ai.ultra.1month_eft.acq，各档独立回退三个月90p备用；2TB 12个月优惠测试目标 g1.2tb.ai.12months_ip_90p（无 .acq）；在原有 /ai? 范围内被动采集，支持最近10次响应/本次新增/重复诊断；当前主模块为 g1-acq-v7.sgmodule，启用一个即可；非主动查询全量 SKU
+#!desc=Titik masuk kompatibilitas v7.6.0: Merujuk ke skrip 3 paket G1 ACQ yang sama, mendukung uji coba gratis 1 bulan Ultra (20TB g1.20tb.1month_eft.acq, 30TB g1.ai.ultra.1month_eft.acq) dengan fallback independen cadangan 90p 3 bulan; target uji promo 12 bulan 2TB g1.2tb.ai.12months_ip_90p (tanpa .acq); mengumpulkan secara pasif pada cakupan /ai? dan mendukung diagnostik 10 respons terakhir/penambahan baru/duplikat; modul utama saat ini adalah g1-acq-v7.sgmodule, cukup aktifkan satu; bukan kueri aktif seluruh SKU
 #!system=ios
 
 [Rule]
-# 与旧模块相同：拦截 UDP 443，作用于使用该配置的流量。
+# Sama seperti modul lama: memblokir UDP 443 pada lalu lintas yang menggunakan konfigurasi ini.
 AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT-NO-DROP
 
 [Script]

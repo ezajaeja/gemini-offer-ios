@@ -1,99 +1,99 @@
-# G1 ACQ Plus (`v8.0.0`) — Google One (iOS / Android) 隐藏免费试用与折扣 SKU 模块
+# G1 ACQ Plus (`v8.0.0`) — Modul SKU Uji Coba Gratis & Diskon Tersembunyi Google One (iOS / Android)
 
-> **开源出处与致谢（Attribution & Credits）**
-> - 本项目基于开源项目 [**`crhywun/g1-acq`**](https://github.com/crhywun/g1-acq)（作者：[@crhywun](https://github.com/crhywun)）扩展构建，保留其核心 Shadowrocket `one.google.com` 响应改写、被动 SKU 采集与本机诊断报告架构。
-> - 感谢 [@cehomecambodia-lang](https://github.com/cehomecambodia-lang) 在上游 [PR #3](https://github.com/crhywun/g1-acq/pull/3) 中贡献的 Ultra 20TB / 30TB 1 个月免费试用（`g1.20tb.1month_eft.acq` / `g1.ai.ultra.1month_eft.acq`）与 3 个月 1 折（90p）回退方案。
-> - **本分支（`v8.0.0`）新增特性**：通过 `BillingClient` 对 15,000+ 个候选命名组合进行全量爆破扫描，首次挖掘并集成了 **Google AI Pro (5 TB) 18 个月 / 15 个月 / 12 个月 / 学生 12 个月 \$0 免费试用**、**Google AI Plus (2 TB / 400 GB) 12 个月 \$0 免费试用**、**100 GB / 200 GB 12 个月 / 9 个月 \$0 免费试用** 等 45 个免费试用档与 80+ 个隐藏折扣档，并在 Safari 本地报告页（`https://one.google.com/g1-sku-report`）中新增了**免改代码的「一键切换目标 SKU 控制台」**。
-
----
-
-## 一、核心升级亮点（`v8.0.0` vs 原版 `v7.6.0`）
-
-1. **新增 Pro 5TB 单次直开 18 个月 / 15 个月 / 12 个月 \$0 免费试用 SKU**：
-   - 原版默认将 `g1.ios.2tb.*` 改写为付费的 `g1.2tb.ai.12months_ip_90p`（\$1.99/月 × 12个月）。
-   - `v8.0.0` 默认优先改写为新挖出的 **`g1.2tb.ai.18months_eft`（Pro 5TB 18 个月 \$0 免费试用）**，并内置 21 个隐藏免费/特价 SKU 预设。
-2. **Safari 本机控制台「一键切换目标 SKU」**：
-   - 打开 `https://one.google.com/g1-sku-report`，直接点击页面表格中的 **「一键切换」** 按钮，即可在手机本地 `$persistentStore` 中实时切换 `g1.ios.2tb.*` 的改写目标（支持 18M 免费、15M 免费、12M 免费、`subs_variant`、学生 12M 免费、12M \$1.99、3M \$1.99、首月 \$0.99、AI Plus 2TB/400GB 12M 免费等），**无需修改任何 JS 代码或重装模块**！
-3. **保留 Ultra 20TB / 30TB 1 个月免费试用 + 3 个月 1 折（90p）智能回退**：
-   - `g1.ios.20tb.m.v2` → 默认 `g1.20tb.1month_eft.acq`（1 个月免费），自动回退 `g1.20tb.3months_ip_90p.acq`（前 3 个月 \$9.99/月）。
-   - `g1.ios.30tb.ai.pro.m` → 默认 `g1.ai.ultra.1month_eft.acq`（1 个月免费），自动回退 `g1.ai.ultra.3months_ip_90p.acq`（前 3 个月 \$19.99/月）。
-4. **附带全量实测 SKU 目录（[sku-catalog.json](sku-catalog.json)）**：
-   - 收录全量扫描命中的 130+ 个 Google One 有效隐藏 SKU 与完整定价阶段（Pricing Phases）明细。
+> **Atribusi & Kredit Sumber Terbuka (Attribution & Credits)**
+> - Proyek ini dikembangkan sebagai perluasan dari proyek sumber terbuka [**`crhywun/g1-acq`**](https://github.com/crhywun/g1-acq) (penulis: [@crhywun](https://github.com/crhywun)), dengan mempertahankan arsitektur inti penulisan ulang respons Shadowrocket `one.google.com`, pengumpulan SKU pasif, dan laporan diagnostik lokal.
+> - Terima kasih kepada [@cehomecambodia-lang](https://github.com/cehomecambodia-lang) atas kontribusinya di upstream [PR #3](https://github.com/crhywun/g1-acq/pull/3) berupa uji coba gratis 1 bulan Ultra 20TB / 30TB (`g1.20tb.1month_eft.acq` / `g1.ai.ultra.1month_eft.acq`) serta skema fallback diskon 90% (90p) selama 3 bulan.
+> - **Fitur baru pada cabang ini (`v8.0.0`)**: Melalui pemindaian menyeluruh (*brute-force scan*) terhadap 15.000+ kombinasi penamaan kandidat menggunakan `BillingClient`, berhasil ditemukan dan diintegrasikan untuk pertama kalinya **uji coba gratis \$0 Google AI Pro (5 TB) 18 bulan / 15 bulan / 12 bulan / Pelajar 12 bulan**, **uji coba gratis \$0 Google AI Plus (2 TB / 400 GB) 12 bulan**, **uji coba gratis \$0 100 GB / 200 GB 12 bulan / 9 bulan**, serta total 45 paket uji coba gratis dan 80+ paket diskon tersembunyi, lengkap dengan **Panel Kontrol "Ganti Target SKU 1-Klik"** tanpa ubah kode di halaman laporan lokal Safari (`https://one.google.com/g1-sku-report`).
 
 ---
 
-## 二、Shadowrocket（小火箭）模块安装地址
+## 1. Keunggulan Pembaruan Utama (`v8.0.0` vs versi asli `v7.6.0`)
 
-在 Shadowrocket「模块（Modules）」中点击右上角添加以下地址：
+1. **Penambahan SKU Uji Coba Gratis \$0 Pro 5TB Langsung 18 Bulan / 15 Bulan / 12 Bulan**:
+   - Versi asli secara bawaan menulis ulang `g1.ios.2tb.*` menjadi paket berbayar `g1.2tb.ai.12months_ip_90p` (\$1.99/bulan × 12 bulan).
+   - `v8.0.0` secara bawaan memprioritaskan penulisan ulang ke SKU baru **`g1.2tb.ai.18months_eft` (Uji coba gratis \$0 Pro 5TB 18 bulan)**, dan dilengkapi 21 preset SKU gratis/promo tersembunyi bawaan.
+2. **Panel Kontrol Lokal Safari "Ganti Target SKU 1-Klik"**:
+   - Buka `https://one.google.com/g1-sku-report`, lalu cukup klik tombol **「Ganti 1-Klik」** pada tabel di halaman untuk langsung mengganti target penulisan ulang `g1.ios.2tb.*` secara *real-time* di `$persistentStore` lokal ponsel (mendukung gratis 18B, gratis 15B, gratis 12B, `subs_variant`, gratis pelajar 12B, 12B \$1.99, 3B \$1.99, bulan pertama \$0.99, gratis AI Plus 2TB/400GB 12B, dll.), **tanpa perlu mengedit kode JS atau memasang ulang modul**!
+3. **Tetap Mendukung Uji Coba Gratis 1 Bulan Ultra 20TB / 30TB + Fallback Cerdas Diskon 90% (90p) 3 Bulan**:
+   - `g1.ios.20tb.m.v2` → bawaan `g1.20tb.1month_eft.acq` (gratis 1 bulan), otomatis fallback ke `g1.20tb.3months_ip_90p.acq` (\$9.99/bulan untuk 3 bulan pertama).
+   - `g1.ios.30tb.ai.pro.m` → bawaan `g1.ai.ultra.1month_eft.acq` (gratis 1 bulan), otomatis fallback ke `g1.ai.ultra.3months_ip_90p.acq` (\$19.99/bulan untuk 3 bulan pertama).
+4. **Dilengkapi Katalog SKU Hasil Pengujian Lengkap ([sku-catalog.json](sku-catalog.json))**:
+   - Mencatat 130+ SKU tersembunyi Google One yang valid dari hasil pemindaian penuh beserta rincian fase harga (*Pricing Phases*) secara lengkap.
+
+---
+
+## 2. Alamat Pemasangan Modul Shadowrocket
+
+Di menu **Modules** (Modul) pada Shadowrocket, ketuk ikon tambah di pojok kanan atas dan masukkan alamat berikut:
 
 ```text
-https://raw.githubusercontent.com/Dgkncn/g1-acq-plus/main/g1-acq-v8.sgmodule
+https://raw.githubusercontent.com/ezajaeja/gemini-offer-ios/main/g1-acq-v8.sgmodule
 ```
-*(兼容旧文件名地址：`https://raw.githubusercontent.com/Dgkncn/g1-acq-plus/main/g1-acq-v7.sgmodule`)*
+*(Kompatibel dengan alamat nama file lama: `https://raw.githubusercontent.com/ezajaeja/gemini-offer-ios/main/g1-acq-v7.sgmodule`)*
 
-### 安装与使用步骤
-1. 在小火箭「模块」中添加并勾选启用上方模块。
-2. 进入小火箭 **配置 → 当前配置右侧 `(i)` → HTTPS 解密**，开启 HTTPS 解密并安装、信任 Shadowrocket 根证书（确保 `one.google.com` 在解密域名列表中）。
-3. 打开 **Safari** 访问本机控制台：[https://one.google.com/g1-sku-report](https://one.google.com/g1-sku-report)
-   - 页面顶部显示 **`本机脚本已接管 · v8.0.0`** 即表示模块生效。
-   - 在 **「一键切换 2TB / Pro 5TB 隐藏目标 SKU」** 面板中选择你想要测试的目标 SKU（默认为 `g1.2tb.ai.18months_eft`）。
-4. 打开 iOS **Google App（彩色 G 图标）→ 点击右上角头像 → Google One 管理**，进入 **2TB / Pro** 或 **20TB / 30TB Ultra** 方案页，拉起 App Store 收银台核对显示的价格与免费试用周期。
+### Langkah Pemasangan dan Penggunaan
+1. Tambahkan dan centang untuk mengaktifkan modul di atas pada menu **Modules** Shadowrocket.
+2. Masuk ke Shadowrocket **Config → ketuk `(i)` di sebelah kanan konfigurasi aktif → HTTPS Decryption**, aktifkan *HTTPS Decryption* lalu pasang dan percayai sertifikat akar (*root certificate*) Shadowrocket (pastikan `one.google.com` ada di daftar hostname dekripsi).
+3. Buka **Safari** dan kunjungi panel kontrol lokal: [https://one.google.com/g1-sku-report](https://one.google.com/g1-sku-report)
+   - Jika bagian atas halaman menampilkan **`Skrip Lokal Aktif · v8.0.0`**, berarti modul sudah berjalan.
+   - Pada panel **「Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik」**, pilih target SKU yang ingin Anda uji (bawaan: `g1.2tb.ai.18months_eft`).
+4. Buka **Google App iOS (ikon huruf G warna-warni) → ketuk foto profil di pojok kanan atas → Kelola Google One**, masuk ke halaman paket **2TB / Pro** atau **20TB / 30TB Ultra**, lalu buka lembar pembayaran App Store untuk memeriksa harga dan masa uji coba gratis yang ditampilkan.
 
 ---
 
-## 三、全量扫描挖掘出的核心隐藏 SKU 一览表
+## 3. Daftar SKU Tersembunyi Utama Hasil Pemindaian Penuh
 
-### 1. Google AI Pro (5 TB) — \$0 免费试用与特价折扣系列
+### 1. Google AI Pro (5 TB) — Seri Uji Coba Gratis \$0 & Harga Promo Spesial
 
-| 隐藏 SKU (Product ID) | Base Plan | Offer ID | 优惠内容 | 续费原价 |
+| SKU Tersembunyi (Product ID) | Base Plan | Offer ID | Detail Promo | Harga Perpanjangan Normal |
 | :--- | :--- | :--- | :--- | :--- |
-| **`g1.2tb.ai.18months_eft`** | `monthly` | `eft-18months` | **18 个月 \$0 免费试用** (`P1Y6M`) | \$19.99/月 |
-| **`g1.2tb.ai.15months_eft`** | `monthly` | `eft-15months` | **15 个月 \$0 免费试用** (`P1Y3M`) | \$19.99/月 |
-| **`g1.2tb.ai.12months_eft`** | `monthly` | `eft-12months` | **12 个月 \$0 免费试用** (`P1Y`) | \$19.99/月 |
-| **`g1.2tb.ai.subs_variant`** | `monthly` | `12months-eft` / `6months-eft` / `6months-eft-2` / `6months-eft-ss-2026` | **12 个月 / 6 个月×3 \$0 免费试用** | \$19.99/月 |
-| **`g1.play.2tb.ai.student`** | `monthly` | `eft-12mo` | **学生通道 12 个月 \$0 免费试用** (`P1Y`) | \$19.99/月 |
-| **`g1.2tb.ai.6months_eft`** | `monthly` | `eft-6months` | **6 个月 \$0 免费试用** (`P6M`) | \$19.99/月 |
-| **`g1.2tb.ai.4months_eft`** | `monthly` | `eft-4months` | **4 个月 \$0 免费试用** (`P4M`) | \$19.99/月 |
-| **`g1.2tb.ai.3months_eft`** | `monthly` | `eft-3months` | **3 个月 \$0 免费试用** (`P3M`) | \$19.99/月 |
-| **`g1.2tb.ai.2months_eft`** | `monthly` | `eft-2months` | **2 个月 \$0 免费试用** (`P2M`) | \$19.99/月 |
-| **`g1.play.2tb.ai`** | `monthly` | `eft-3mo` | **3 个月 \$0 免费试用** (`P3M`) | \$19.99/月 |
-| **`g1.2tb.ai.12months_ip_90p`** | `p1m` | `ip-12mo-90p` | **前 12 个月 1 折 \$1.99/月**（共 \$23.88/年） | \$19.99/月 |
-| **`g1.2tb.ai.12months_ip_75p`** | `p1m` | `introprice` | **前 12 个月 2.5 折 \$4.99/月** | \$19.99/月 |
-| **`g1.2tb.ai.3months_ip_90p.acq`** | `p1m` | `introprice` | **前 3 个月 1 折 \$1.99/月**（仅限无订阅新客） | \$19.99/月 |
-| **`g1.2tb.ai.2months_ip_90p.acq`** | `p1m` | `introprice` | **前 2 个月 1 折 \$1.99/月**（仅限无订阅新客） | \$19.99/月 |
-| **`g1.2tb.ai.1month_ip_95p.acq`** | `p1m` | `introprice` | **首月 0.5 折 \$0.99/月**（仅限无订阅新客） | \$19.99/月 |
+| **`g1.2tb.ai.18months_eft`** | `monthly` | `eft-18months` | **Uji coba gratis \$0 selama 18 bulan** (`P1Y6M`) | \$19.99/bulan |
+| **`g1.2tb.ai.15months_eft`** | `monthly` | `eft-15months` | **Uji coba gratis \$0 selama 15 bulan** (`P1Y3M`) | \$19.99/bulan |
+| **`g1.2tb.ai.12months_eft`** | `monthly` | `eft-12months` | **Uji coba gratis \$0 selama 12 bulan** (`P1Y`) | \$19.99/bulan |
+| **`g1.2tb.ai.subs_variant`** | `monthly` | `12months-eft` / `6months-eft` / `6months-eft-2` / `6months-eft-ss-2026` | **Uji coba gratis \$0 selama 12 bulan / 6 bulan × 3** | \$19.99/bulan |
+| **`g1.play.2tb.ai.student`** | `monthly` | `eft-12mo` | **Jalur Pelajar: Uji coba gratis \$0 selama 12 bulan** (`P1Y`) | \$19.99/bulan |
+| **`g1.2tb.ai.6months_eft`** | `monthly` | `eft-6months` | **Uji coba gratis \$0 selama 6 bulan** (`P6M`) | \$19.99/bulan |
+| **`g1.2tb.ai.4months_eft`** | `monthly` | `eft-4months` | **Uji coba gratis \$0 selama 4 bulan** (`P4M`) | \$19.99/bulan |
+| **`g1.2tb.ai.3months_eft`** | `monthly` | `eft-3months` | **Uji coba gratis \$0 selama 3 bulan** (`P3M`) | \$19.99/bulan |
+| **`g1.2tb.ai.2months_eft`** | `monthly` | `eft-2months` | **Uji coba gratis \$0 selama 2 bulan** (`P2M`) | \$19.99/bulan |
+| **`g1.play.2tb.ai`** | `monthly` | `eft-3mo` | **Uji coba gratis \$0 selama 3 bulan** (`P3M`) | \$19.99/bulan |
+| **`g1.2tb.ai.12months_ip_90p`** | `p1m` | `ip-12mo-90p` | **Diskon 90% 12 bulan pertama: \$1.99/bulan** (total \$23.88/tahun) | \$19.99/bulan |
+| **`g1.2tb.ai.12months_ip_75p`** | `p1m` | `introprice` | **Diskon 75% 12 bulan pertama: \$4.99/bulan** | \$19.99/bulan |
+| **`g1.2tb.ai.3months_ip_90p.acq`** | `p1m` | `introprice` | **Diskon 90% 3 bulan pertama: \$1.99/bulan** (khusus pengguna baru tanpa langganan) | \$19.99/bulan |
+| **`g1.2tb.ai.2months_ip_90p.acq`** | `p1m` | `introprice` | **Diskon 90% 2 bulan pertama: \$1.99/bulan** (khusus pengguna baru tanpa langganan) | \$19.99/bulan |
+| **`g1.2tb.ai.1month_ip_95p.acq`** | `p1m` | `introprice` | **Diskon 95% bulan pertama: \$0.99/bulan** (khusus pengguna baru tanpa langganan) | \$19.99/bulan |
 
-### 2. Google AI Ultra (20 TB / 30 TB) — 免费试用与 1 折系列（需无订阅新号）
+### 2. Google AI Ultra (20 TB / 30 TB) — Seri Uji Coba Gratis & Diskon 90% (Khusus Akun Baru Tanpa Langganan)
 
-| 隐藏 SKU (Product ID) | 适用档位 | 优惠内容 | 续费原价 |
+| SKU Tersembunyi (Product ID) | Paket Terkait | Detail Promo | Harga Perpanjangan Normal |
 | :--- | :--- | :--- | :--- |
-| **`g1.20tb.1month_eft.acq`** | Ultra 20TB (5x) | **1 个月 \$0 免费试用** | \$99.99/月 |
-| **`g1.20tb.3months_ip_90p.acq`** | Ultra 20TB (5x) | **前 3 个月 1 折 \$9.99/月** | \$99.99/月 |
-| **`g1.20tb.3months_ip_80p`** | Ultra 20TB (5x) | **前 3 个月 2 折 \$19.99/月** | \$99.99/月 |
-| **`g1.20tb.3months_ip_75p.acq`** | Ultra 20TB (5x) | **前 3 个月 2.5 折 \$24.99/月** | \$99.99/月 |
-| **`g1.ai.ultra.1month_eft.acq`** | Ultra 30TB (20x) | **1 个月 \$0 免费试用** | \$199.99/月 |
-| **`g1.ai.ultra.3months_ip_90p.acq`** | Ultra 30TB (20x) | **前 3 个月 1 折 \$19.99/月** | \$199.99/月 |
-| **`g1.ai.ultra.3months_ip_75p.acq`** | Ultra 30TB (20x) | **前 3 个月 2.5 折 \$49.99/月** | \$199.99/月 |
+| **`g1.20tb.1month_eft.acq`** | Ultra 20TB (5x) | **Uji coba gratis \$0 selama 1 bulan** | \$99.99/bulan |
+| **`g1.20tb.3months_ip_90p.acq`** | Ultra 20TB (5x) | **Diskon 90% 3 bulan pertama: \$9.99/bulan** | \$99.99/bulan |
+| **`g1.20tb.3months_ip_80p`** | Ultra 20TB (5x) | **Diskon 80% 3 bulan pertama: \$19.99/bulan** | \$99.99/bulan |
+| **`g1.20tb.3months_ip_75p.acq`** | Ultra 20TB (5x) | **Diskon 75% 3 bulan pertama: \$24.99/bulan** | \$99.99/bulan |
+| **`g1.ai.ultra.1month_eft.acq`** | Ultra 30TB (20x) | **Uji coba gratis \$0 selama 1 bulan** | \$199.99/bulan |
+| **`g1.ai.ultra.3months_ip_90p.acq`** | Ultra 30TB (20x) | **Diskon 90% 3 bulan pertama: \$19.99/bulan** | \$199.99/bulan |
+| **`g1.ai.ultra.3months_ip_75p.acq`** | Ultra 30TB (20x) | **Diskon 75% 3 bulan pertama: \$49.99/bulan** | \$199.99/bulan |
 
-### 3. Google AI Plus (2 TB / 400 GB) & 基础存储 (100 GB / 200 GB / 30 GB)
+### 3. Google AI Plus (2 TB / 400 GB) & Penyimpanan Dasar (100 GB / 200 GB / 30 GB)
 
-| 隐藏 SKU (Product ID) | 适用档位 | 优惠内容 | 续费原价 |
+| SKU Tersembunyi (Product ID) | Paket Terkait | Detail Promo | Harga Perpanjangan Normal |
 | :--- | :--- | :--- | :--- |
-| **`g1.2tb.1year_eft`** | AI Plus (2 TB) | **12 个月 \$0 免费试用** (`P52W1D`) | \$9.99/月 |
-| **`g1.2tb.6months_eft`** / **`g1.2tb.subs_variant`** | AI Plus (2 TB) | **6 个月 / 3 个月 \$0 免费试用** | \$9.99/月 |
-| **`g1.2tb.3months_ip_90p.acq`** | AI Plus (2 TB) | **前 3 个月 1 折 \$0.99/月** | \$9.99/月 |
-| **`g1.play.helium`** / **`g1.play.helium.student`** | AI Plus (400 GB) | **12 个月 / 6 个月 / 3 个月 \$0 免费试用** | \$4.99/月 |
-| **`g1.helium.12months_ip_90p`** | AI Plus (400 GB) | **前 12 个月 1 折 \$0.49/月**（共 \$5.88/年） | \$4.99/月 |
-| **`g1.100gb.1year_eft`** / **`g1.100gb.annual.1year_eft`** | 100 GB | **12 个月 \$0 免费试用** (`P52W1D`) | \$1.99/月 或 \$19.99/年 |
-| **`g1.100gb.9months_eft`** / **`g1.100gb.180days_eft`** | 100 GB | **9 个月 / 180 天 \$0 免费试用** | \$1.99/月 |
-| **`g1.200gb.1year_eft`** / **`g1.200gb.180days_eft`** | 200 GB | **12 个月 / 180 天 \$0 免费试用** | \$2.99/月 |
-| **`g1.30gb.3month_eft`** / **`g1.30gb.1month_eft`** | 30 GB | **3 个月 / 1 个月 \$0 免费试用** | \$0.89/月 |
+| **`g1.2tb.1year_eft`** | AI Plus (2 TB) | **Uji coba gratis \$0 selama 12 bulan** (`P52W1D`) | \$9.99/bulan |
+| **`g1.2tb.6months_eft`** / **`g1.2tb.subs_variant`** | AI Plus (2 TB) | **Uji coba gratis \$0 selama 6 bulan / 3 bulan** | \$9.99/bulan |
+| **`g1.2tb.3months_ip_90p.acq`** | AI Plus (2 TB) | **Diskon 90% 3 bulan pertama: \$0.99/bulan** | \$9.99/bulan |
+| **`g1.play.helium`** / **`g1.play.helium.student`** | AI Plus (400 GB) | **Uji coba gratis \$0 selama 12 bulan / 6 bulan / 3 bulan** | \$4.99/bulan |
+| **`g1.helium.12months_ip_90p`** | AI Plus (400 GB) | **Diskon 90% 12 bulan pertama: \$0.49/bulan** (total \$5.88/tahun) | \$4.99/bulan |
+| **`g1.100gb.1year_eft`** / **`g1.100gb.annual.1year_eft`** | 100 GB | **Uji coba gratis \$0 selama 12 bulan** (`P52W1D`) | \$1.99/bulan atau \$19.99/tahun |
+| **`g1.100gb.9months_eft`** / **`g1.100gb.180days_eft`** | 100 GB | **Uji coba gratis \$0 selama 9 bulan / 180 hari** | \$1.99/bulan |
+| **`g1.200gb.1year_eft`** / **`g1.200gb.180days_eft`** | 200 GB | **Uji coba gratis \$0 selama 12 bulan / 180 hari** | \$2.99/bulan |
+| **`g1.30gb.3month_eft`** / **`g1.30gb.1month_eft`** | 30 GB | **Uji coba gratis \$0 selama 3 bulan / 1 bulan** | \$0.89/bulan |
 
 ---
 
-## 四、免责声明与出处标注
+## 4. Penafian & Keterangan Sumber
 
-- 响应中替换商品 ID 仅代表客户端向 App Store / Google Play 发起指定 SKU 的收银台请求，最终是否展示试用、订阅周期与扣款金额**一律以 App Store / Google Play 原生收银台弹窗显示为准**。
-- **原始项目出处**：[https://github.com/crhywun/g1-acq](https://github.com/crhywun/g1-acq)（作者：[@crhywun](https://github.com/crhywun)，PR #3 贡献者：[@cehomecambodia-lang](https://github.com/cehomecambodia-lang)）。
-- 友情链接：LinuxDo 开源社区(https://linux.do/)
-有任何问题联系推特：https://x.com/zixunclub
+- Penggantian ID produk dalam respons hanya berarti klien mengajukan permintaan kasir App Store / Google Play untuk SKU tertentu; apakah masa uji coba muncul, siklus langganan, dan jumlah tagihan akhir **sepenuhnya mengacu pada tampilan popup kasir asli App Store / Google Play**.
+- **Sumber proyek asli**: [https://github.com/crhywun/g1-acq](https://github.com/crhywun/g1-acq) (penulis: [@crhywun](https://github.com/crhywun), kontributor PR #3: [@cehomecambodia-lang](https://github.com/cehomecambodia-lang)).
+- Tautan komunitas: Komunitas Sumber Terbuka LinuxDo (https://linux.do/)
+Jika ada pertanyaan, hubungi Twitter/X: https://x.com/zixunclub

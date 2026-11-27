@@ -1,4 +1,4 @@
-/* Google AI Pro annual product test for Shadowrocket. */
+/* Pengujian produk tahunan Google AI Pro untuk Shadowrocket. */
 "use strict";
 
 (function () {
@@ -28,10 +28,10 @@
   var out = body;
 
   if (typeof body === "string") {
-    // Preserve v6's 20TB/30TB fallback rule using the original response.
-    // These are observed strings, not a verified store catalog.
+    // Pertahankan aturan fallback 20TB/30TB dari v6 menggunakan respons asli.
+    // Ini adalah string yang teramati, bukan katalog toko yang terverifikasi.
     var observed = body.match(/g1\.[a-z0-9._]{2,60}acq/g) || [];
-    // Match complete tokens before selecting 2TB or the two existing source IDs.
+    // Cocokkan token lengkap sebelum memilih 2TB atau dua ID sumber yang ada.
     out = body.replace(
       /(^|[^A-Za-z0-9._@%-])(g1\.[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g,
       function (match, before, id) {

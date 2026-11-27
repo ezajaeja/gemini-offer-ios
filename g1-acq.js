@@ -1,10 +1,10 @@
-/* Google One combined 2TB / Pro 5TB / 20TB / 30TB / 100GB / 200GB mappings for Shadowrocket.
+/* Pemetaan gabungan Google One 2TB / Pro 5TB / 20TB / 30TB / 100GB / 200GB untuk Shadowrocket.
  *
- * Attribution & Credits:
- *   - Based on the open-source project `crhywun/g1-acq` (https://github.com/crhywun/g1-acq) by @crhywun
- *   - Ultra 20TB/30TB 1-month free trial mapping contributed by @cehomecambodia-lang (PR #3)
- *   - Extended in v8.0 with newly discovered 18-month / 15-month / 12-month / 9-month / 6-month $0 free trial
- *     and discount SKUs from exhaustive Google Play BillingClient catalog scanning, plus Safari interactive target switching.
+ * Atribusi & Kredit:
+ *   - Dikembangkan dari proyek sumber terbuka `crhywun/g1-acq` (https://github.com/crhywun/g1-acq) oleh @crhywun
+ *   - Pemetaan uji coba gratis 1 bulan Ultra 20TB/30TB dikontribusikan oleh @cehomecambodia-lang (PR #3)
+ *   - Diperluas pada v8.0 dengan SKU uji coba gratis $0 18 bulan / 15 bulan / 12 bulan / 9 bulan / 6 bulan
+ *     dan diskon yang ditemukan dari pemindaian menyeluruh katalog Google Play BillingClient, serta pengalih target interaktif di Safari.
  */
 "use strict";
 
@@ -13,10 +13,10 @@
   var SOURCE_PREFIX = "g1.ios.2tb.";
   var TARGET_OVERRIDE_KEY = "g1.target.override.v1";
 
-  // Default target for 2TB / Pro 5TB: newly discovered 18-month $0 free trial (can be switched in Safari at https://one.google.com/g1-sku-report)
+  // Target bawaan untuk 2TB / Pro 5TB: uji coba gratis $0 18 bulan (dapat diganti di Safari melalui https://one.google.com/g1-sku-report)
   var DEFAULT_TARGET = "g1.2tb.ai.18months_eft";
 
-  // Priority chain for 2TB / Pro 5TB when auto-selecting from response body
+  // Rantai prioritas untuk 2TB / Pro 5TB saat memilih otomatis dari body respons
   var PRO_CHAIN = [
     "g1.2tb.ai.18months_eft",
     "g1.2tb.ai.15months_eft",
@@ -256,7 +256,7 @@
     path = path.replace(/\/+$/, "") || "/";
     if (path === "/" || path === "/ai" || path === "/plans") return path;
     if (/^\/_\/[^?#]+\/data\/batchexecute$/.test(path)) return "/_/…/data/batchexecute";
-    return "[其他 one.google.com 路径]";
+    return "[Jalur one.google.com lainnya]";
   }
 
   function responseStatus(bodyType, candidateCount, addedCount, omittedCount) {
@@ -271,7 +271,7 @@
     if (typeof row.at !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(row.at) ||
         !isFinite(Date.parse(row.at)) || new Date(row.at).toISOString() !== row.at) return null;
     if (row.path !== "/" && row.path !== "/ai" && row.path !== "/plans" &&
-        row.path !== "/_/…/data/batchexecute" && row.path !== "[其他 one.google.com 路径]") return null;
+        row.path !== "/_/…/data/batchexecute" && row.path !== "[Jalur one.google.com lainnya]") return null;
     if (row.bodyType !== "text" && row.bodyType !== "non-text") return null;
 
     function counter(value, maximum) {

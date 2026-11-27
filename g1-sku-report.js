@@ -1,8 +1,8 @@
-/* Local-only report & interactive SKU switcher served by a Shadowrocket http-request script.
+/* Laporan lokal & pengalih SKU interaktif yang disajikan oleh skrip http-request Shadowrocket.
  *
- * Attribution & Credits:
- *   - Based on `crhywun/g1-acq` (https://github.com/crhywun/g1-acq) by @crhywun
- *   - Extended in v8.0.0 with interactive 1-tap Safari target SKU switching & newly discovered 18M/15M/12M/6M/1Y free trial SKUs.
+ * Atribusi & Kredit:
+ *   - Dikembangkan dari `crhywun/g1-acq` (https://github.com/crhywun/g1-acq) oleh @crhywun
+ *   - Diperluas pada v8.0.0 dengan pengalihan target SKU 1-ketuk interaktif di Safari & SKU uji coba gratis 18M/15M/12M/6M/1Y yang baru ditemukan.
  */
 "use strict";
 
@@ -17,27 +17,27 @@
   var TEST_KEY = "g1.pro.annual.test.v1";
 
   var PRESET_SKUS = [
-    { sku: "g1.2tb.ai.18months_eft", label: "★ Pro 5TB · 18个月 $0 免费试用 (eft-18months)", tag: "FREE 18M" },
-    { sku: "g1.2tb.ai.15months_eft", label: "★ Pro 5TB · 15个月 $0 免费试用 (eft-15months)", tag: "FREE 15M" },
-    { sku: "g1.2tb.ai.12months_eft", label: "★ Pro 5TB · 12个月 $0 免费试用 (eft-12months)", tag: "FREE 12M" },
-    { sku: "g1.2tb.ai.subs_variant", label: "Pro 5TB · 12个月/6个月 $0 免费试用变体 (subs_variant)", tag: "FREE 12M/6M" },
-    { sku: "g1.play.2tb.ai.student", label: "★ Pro 5TB · 学生通道 12个月 $0 免费试用 (eft-12mo)", tag: "FREE 12M" },
-    { sku: "g1.2tb.ai.6months_eft", label: "Pro 5TB · 6个月 $0 免费试用 (eft-6months)", tag: "FREE 6M" },
-    { sku: "g1.2tb.ai.4months_eft", label: "Pro 5TB · 4个月 $0 免费试用 (eft-4months)", tag: "FREE 4M" },
-    { sku: "g1.2tb.ai.3months_eft", label: "Pro 5TB · 3个月 $0 免费试用 (eft-3months)", tag: "FREE 3M" },
-    { sku: "g1.2tb.ai.2months_eft", label: "Pro 5TB · 2个月 $0 免费试用 (eft-2months)", tag: "FREE 2M" },
-    { sku: "g1.2tb.ai.12months_ip_90p", label: "Pro 5TB · 12个月 1折优惠 ($1.99/月 × 12 = $23.88)", tag: "$1.99×12M" },
-    { sku: "g1.2tb.ai.3months_ip_90p.acq", label: "Pro 5TB · 3个月 1折优惠 ($1.99/月 × 3)", tag: "$1.99×3M" },
-    { sku: "g1.2tb.ai.1month_ip_95p.acq", label: "Pro 5TB · 1个月 0.5折优惠 ($0.99/首月)", tag: "$0.99×1M" },
-    { sku: "g1.2tb.1year_eft", label: "★ AI Plus 2TB · 12个月 $0 免费试用 (1year_eft)", tag: "FREE 12M" },
-    { sku: "g1.2tb.6months_eft", label: "AI Plus 2TB · 6个月 $0 免费试用 (6months_eft)", tag: "FREE 6M" },
-    { sku: "g1.2tb.subs_variant", label: "AI Plus 2TB · 6个月/3个月 $0 免费试用变体", tag: "FREE 6M/3M" },
-    { sku: "g1.play.helium", label: "★ AI Plus 400GB · 12个月 $0 免费试用 (eft-12mo)", tag: "FREE 12M" },
-    { sku: "g1.play.helium.student", label: "AI Plus 400GB · 学生 12个月 $0 免费试用", tag: "FREE 12M" },
-    { sku: "g1.helium.12months_ip_90p", label: "AI Plus 400GB · 12个月 1折 ($0.49/月 × 12 = $5.88/年)", tag: "$0.49×12M" },
-    { sku: "g1.100gb.1year_eft", label: "★ 100GB 存储 · 12个月 $0 免费试用 (1year_eft)", tag: "FREE 12M" },
-    { sku: "g1.100gb.9months_eft", label: "★ 100GB 存储 · 9个月 $0 免费试用 (9months_eft)", tag: "FREE 9M" },
-    { sku: "g1.200gb.1year_eft", label: "★ 200GB 存储 · 12个月 $0 免费试用 (1year_eft)", tag: "FREE 12M" }
+    { sku: "g1.2tb.ai.18months_eft", label: "★ Pro 5TB · Uji coba gratis $0 18 bulan (eft-18months)", tag: "FREE 18M" },
+    { sku: "g1.2tb.ai.15months_eft", label: "★ Pro 5TB · Uji coba gratis $0 15 bulan (eft-15months)", tag: "FREE 15M" },
+    { sku: "g1.2tb.ai.12months_eft", label: "★ Pro 5TB · Uji coba gratis $0 12 bulan (eft-12months)", tag: "FREE 12M" },
+    { sku: "g1.2tb.ai.subs_variant", label: "Pro 5TB · Varian uji coba gratis $0 12 bulan/6 bulan (subs_variant)", tag: "FREE 12M/6M" },
+    { sku: "g1.play.2tb.ai.student", label: "★ Pro 5TB · Jalur Pelajar Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
+    { sku: "g1.2tb.ai.6months_eft", label: "Pro 5TB · Uji coba gratis $0 6 bulan (eft-6months)", tag: "FREE 6M" },
+    { sku: "g1.2tb.ai.4months_eft", label: "Pro 5TB · Uji coba gratis $0 4 bulan (eft-4months)", tag: "FREE 4M" },
+    { sku: "g1.2tb.ai.3months_eft", label: "Pro 5TB · Uji coba gratis $0 3 bulan (eft-3months)", tag: "FREE 3M" },
+    { sku: "g1.2tb.ai.2months_eft", label: "Pro 5TB · Uji coba gratis $0 2 bulan (eft-2months)", tag: "FREE 2M" },
+    { sku: "g1.2tb.ai.12months_ip_90p", label: "Pro 5TB · Promo diskon 90% 12 bulan ($1.99/bln × 12 = $23.88)", tag: "$1.99×12M" },
+    { sku: "g1.2tb.ai.3months_ip_90p.acq", label: "Pro 5TB · Promo diskon 90% 3 bulan ($1.99/bln × 3)", tag: "$1.99×3M" },
+    { sku: "g1.2tb.ai.1month_ip_95p.acq", label: "Pro 5TB · Promo diskon 95% 1 bulan ($0.99/bulan pertama)", tag: "$0.99×1M" },
+    { sku: "g1.2tb.1year_eft", label: "★ AI Plus 2TB · Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
+    { sku: "g1.2tb.6months_eft", label: "AI Plus 2TB · Uji coba gratis $0 6 bulan (6months_eft)", tag: "FREE 6M" },
+    { sku: "g1.2tb.subs_variant", label: "AI Plus 2TB · Varian uji coba gratis $0 6 bulan/3 bulan", tag: "FREE 6M/3M" },
+    { sku: "g1.play.helium", label: "★ AI Plus 400GB · Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
+    { sku: "g1.play.helium.student", label: "AI Plus 400GB · Pelajar Uji coba gratis $0 12 bulan", tag: "FREE 12M" },
+    { sku: "g1.helium.12months_ip_90p", label: "AI Plus 400GB · Diskon 90% 12 bulan ($0.49/bln × 12 = $5.88/thn)", tag: "$0.49×12M" },
+    { sku: "g1.100gb.1year_eft", label: "★ Penyimpanan 100GB · Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
+    { sku: "g1.100gb.9months_eft", label: "★ Penyimpanan 100GB · Uji coba gratis $0 9 bulan (9months_eft)", tag: "FREE 9M" },
+    { sku: "g1.200gb.1year_eft", label: "★ Penyimpanan 200GB · Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" }
   ];
 
   var url = typeof $request === "object" && $request ? $request.url : "";
@@ -50,16 +50,16 @@
     typeof $persistentStore.read === "function";
   var clearMessage = "";
 
-  // Handle interactive target switching via ?set_target=<sku>
+  // Tangani pengalihan target interaktif melalui ?set_target=<sku>
   var targetMatch = /(?:\?|&)set_target=([A-Za-z0-9._-]+)(?:&|$)/.exec(url);
   if (targetMatch && storageAvailable) {
     var newTarget = decodeURIComponent(targetMatch[1]);
     if (/^g1\.[A-Za-z0-9._-]{2,120}$/.test(newTarget)) {
       try {
         var okWrite = $persistentStore.write(newTarget, TARGET_OVERRIDE_KEY);
-        clearMessage = okWrite ? ("✅ 已将 2TB/Pro 默认改写目标切换为：" + newTarget + "（请返回 Google App 重新进入方案页触发改写）") : "目标切换写入失败。";
+        clearMessage = okWrite ? ("✅ Target penulisan ulang bawaan 2TB/Pro diubah ke: " + newTarget + " (kembali ke Google App dan buka ulang halaman paket untuk memicu penulisan ulang)") : "Gagal menyimpan pergantian target.";
       } catch (e) {
-        clearMessage = "本地存储接口暂未就绪。";
+        clearMessage = "Antarmuka penyimpanan lokal belum siap.";
       }
     }
   }
@@ -68,9 +68,9 @@
     try {
       var scanCleared = $persistentStore.write("{}", SCAN_KEY);
       var testCleared = $persistentStore.write("{}", TEST_KEY);
-      clearMessage = scanCleared && testCleared ? "本工具的两份本地记录已清空。" : "本地记录清空未完成。";
+      clearMessage = scanCleared && testCleared ? "Dua catatan lokal alat ini telah dikosongkan." : "Pengosongan catatan lokal belum selesai.";
     } catch (error) {
-      clearMessage = "本地存储接口暂未就绪。";
+      clearMessage = "Antarmuka penyimpanan lokal belum siap.";
     }
   }
 
@@ -121,13 +121,13 @@
   }
 
   var scanStatuses = {
-    "new-skus": "发现并录入新编号",
-    "known-skus": "收到响应，编号与已有记录重复",
-    "no-skus": "收到文本响应，本次没有商品编号",
-    "limit-reached": "收到新编号，已达采集容量上限",
-    "non-text": "收到响应，正文不是可扫描文本"
+    "new-skus": "Ditemukan dan dicatat ID baru",
+    "known-skus": "Respons diterima, ID sama dengan catatan yang sudah ada",
+    "no-skus": "Respons teks diterima, tidak ada ID produk kali ini",
+    "limit-reached": "ID baru diterima, batas kapasitas pengumpulan tercapai",
+    "non-text": "Respons diterima, body bukan teks yang dapat dipindai"
   };
-  var scanPaths = ["/", "/ai", "/plans", "/_/…/data/batchexecute", "[其他 one.google.com 路径]"];
+  var scanPaths = ["/", "/ai", "/plans", "/_/…/data/batchexecute", "[Jalur one.google.com lainnya]"];
   function recent(value) {
     if (!Array.isArray(value)) return [];
     return value.slice(-10).filter(function (event) {
@@ -138,7 +138,7 @@
     }).map(function (event) {
       return {
         at: event.at,
-        path: scanPaths.indexOf(event.path) !== -1 ? event.path : "[其他 one.google.com 路径]",
+        path: scanPaths.indexOf(event.path) !== -1 ? event.path : "[Jalur one.google.com lainnya]",
         bodyType: event.bodyType,
         status: event.status,
         candidateCount: count(event.candidateCount),
@@ -222,23 +222,23 @@
     });
   }
   function fallbackName(row) {
-    if (!row.fallback) return "否";
+    if (!row.fallback) return "Tidak";
     var discount = /_ip_(\d+p)\.acq$/.exec(row.to || "");
-    return discount ? discount[1] : "是";
+    return discount ? discount[1] : "Ya";
   }
   function table(items, withTime) {
-    if (!items.length) return "<p>暂无记录。</p>";
-    return "<div class=scroll><table><thead><tr><th>完整商品编号</th><th>次数</th>" +
-      (withTime ? "<th>最近发现时间（UTC）</th>" : "<th>实际目标 SKU</th><th>备用档</th>") + "</tr></thead><tbody>" +
+    if (!items.length) return "<p>Belum ada catatan.</p>";
+    return "<div class=scroll><table><thead><tr><th>ID Produk Lengkap</th><th>Jumlah</th>" +
+      (withTime ? "<th>Terakhir Ditemukan (UTC)</th>" : "<th>SKU Target Aktual</th><th>Cadangan</th>") + "</tr></thead><tbody>" +
       items.map(function (row) {
         return "<tr><td><code>" + escape(row.id) + "</code></td><td>" + row.count + "</td>" +
           (withTime ? "<td>" + escape(row.lastSeen) + "</td>" :
-            "<td><code>" + escape(row.to || "未记录") + "</code></td><td>" + fallbackName(row) + "</td>") + "</tr>";
+            "<td><code>" + escape(row.to || "Tidak tercatat") + "</code></td><td>" + fallbackName(row) + "</td>") + "</tr>";
       }).join("") + "</tbody></table></div>";
   }
   function recentTable(events) {
-    if (!events.length) return "<p>尚无逐次响应记录；旧版采集数据没有这项诊断。</p>";
-    return "<div class=scroll><table><thead><tr><th>时间（UTC）</th><th>路径分类</th><th>本次结果</th><th>识别编号</th><th>新增录入</th><th>容量外编号</th></tr></thead><tbody>" +
+    if (!events.length) return "<p>Belum ada catatan respons per kejadian; data pengumpulan versi lama tidak memiliki diagnostik ini.</p>";
+    return "<div class=scroll><table><thead><tr><th>Waktu (UTC)</th><th>Kategori Jalur</th><th>Hasil Kali Ini</th><th>ID Dikenali</th><th>Baru Dicatat</th><th>Di Luar Kapasitas</th></tr></thead><tbody>" +
       events.slice().reverse().map(function (event) {
         return "<tr><td>" + escape(event.at) + "</td><td>" + escape(event.path) +
           "</td><td>" + scanStatuses[event.status] + "</td><td>" + event.candidateCount +
@@ -246,51 +246,51 @@
       }).join("") + "</tbody></table></div>";
   }
   function presetTable() {
-    return "<div class=scroll><table><thead><tr><th>标签</th><th>隐藏 SKU (Product ID)</th><th>说明</th><th>操作</th></tr></thead><tbody>" +
+    return "<div class=scroll><table><thead><tr><th>Label</th><th>SKU Tersembunyi (Product ID)</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody>" +
       PRESET_SKUS.map(function (item) {
         var active = item.sku === CONFIGURED_TARGET;
         return "<tr" + (active ? " style=\"background:#eef8f2\"" : "") + "><td><strong>" + escape(item.tag) + "</strong></td><td><code>" + escape(item.sku) + "</code></td><td>" + escape(item.label) + "</td><td>" +
-          (active ? "<span class=badge>当前已启用</span>" : "<a href=\"" + ROOT + "?set_target=" + encodeURIComponent(item.sku) + "\">一键切换</a>") + "</td></tr>";
+          (active ? "<span class=badge>Sedang Aktif</span>" : "<a href=\"" + ROOT + "?set_target=" + encodeURIComponent(item.sku) + "\">Ganti 1-Klik</a>") + "</td></tr>";
       }).join("") + "</tbody></table></div>";
   }
 
   var latestScan = report.scan.recentResponses.length ?
     report.scan.recentResponses[report.scan.recentResponses.length - 1] : null;
   var scanVersionStatus = report.scan.version === COLLECTOR_VERSION ?
-    "记录来自本版采集脚本；按响应时间与计数判断是否产生了新记录。" :
-    report.scan.version ? "旧采集记录；尚未保存本版采集响应记录。" : "尚未保存本版采集响应记录。";
+    "Catatan berasal dari skrip pengumpul versi ini; gunakan waktu respons dan hitungan untuk memastikan apakah catatan baru terbentuk." :
+    report.scan.version ? "Catatan pengumpulan lama; belum ada catatan respons pengumpulan versi ini yang tersimpan." : "Belum ada catatan respons pengumpulan versi ini yang tersimpan.";
   var statuses = {
-    "rewritten": "已执行字符串替换",
-    "no-match": "本次响应未命中三档映射中的源商品",
-    "non-text": "本次响应没有可处理的文本正文"
+    "rewritten": "Penggantian string telah dijalankan",
+    "no-match": "Respons kali ini tidak cocok dengan produk sumber pada pemetaan 3 paket",
+    "non-text": "Respons kali ini tidak memiliki body teks yang dapat diproses"
   };
   var status = Object.prototype.hasOwnProperty.call(statuses, report.test.status) ?
-    statuses[report.test.status] : "暂无测试执行记录";
+    statuses[report.test.status] : "Belum ada catatan eksekusi pengujian";
   var html = [
-    "<!doctype html><html lang=zh-CN><meta charset=utf-8>",
-    "<meta name=viewport content=\"width=device-width,initial-scale=1\"><title>Google One SKU 本地控制台 & 报告</title>",
+    "<!doctype html><html lang=id><meta charset=utf-8>",
+    "<meta name=viewport content=\"width=device-width,initial-scale=1\"><title>Panel Kontrol & Laporan Lokal SKU Google One</title>",
     "<style>body{font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;max-width:960px;margin:24px auto;padding:0 18px;color:#1c2737;background:#f5f7fa}section{background:white;border:1px solid #dde3ec;border-radius:12px;padding:18px;margin:18px 0}h1{font-size:24px;margin-bottom:10px}h2{font-size:20px}code{overflow-wrap:anywhere}a{color:#1259be}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:9px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}.scroll{overflow:auto}.note{color:#46556b}.badge{display:inline-block;background:#e0f4e8;color:#176238;padding:4px 10px;border-radius:8px}.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:20px 0}.actions form{margin:0}button,.actions a{font:inherit;padding:10px 16px;border:0;border-radius:8px;cursor:pointer;text-decoration:none}.actions a{background:#e4eaf3}.actions button{background:#1259be;color:white}button{background:#e4eaf3;color:#1c2737}</style>",
-    "<h1>Google One iOS 隐藏 SKU 本地控制台 & 报告</h1>",
-    "<p class=badge>本机脚本已接管 · " + VERSION + "</p>",
-    "<nav class=actions aria-label=报告操作><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>导出 JSON</button></form><a href=\"" + ROOT + "\">刷新报告</a></nav>",
+    "<h1>Panel Kontrol & Laporan Lokal SKU Tersembunyi Google One iOS</h1>",
+    "<p class=badge>Skrip Lokal Aktif · " + VERSION + "</p>",
+    "<nav class=actions aria-label=\"Aksi laporan\"><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>Ekspor JSON</button></form><a href=\"" + ROOT + "\">Segarkan Laporan</a></nav>",
     clearMessage ? "<p style=\"background:#fff8db;padding:12px;border-radius:8px;border:1px solid #e6d087\">" + escape(clearMessage) + "</p>" : "",
-    "<section><h2>一键切换 2TB / Pro 5TB 隐藏目标 SKU</h2>",
-    "<p>当前生效的 <code>g1.ios.2tb.*</code> 改写目标：<code><strong>" + escape(CONFIGURED_TARGET) + "</strong></code></p>",
-    "<p class=note>点击下方任意行的「一键切换」即可在手机本地切换目标 SKU，无需修改脚本；切换后重新进入 Google App → Google One 管理页即可触发新 SKU 改写。Ultra 20TB / 30TB 自动保持 <code>g1.20tb.1month_eft.acq</code> / <code>g1.ai.ultra.1month_eft.acq</code>（自动回退 90p 1折）。</p>",
+    "<section><h2>Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik</h2>",
+    "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> yang aktif saat ini: <code><strong>" + escape(CONFIGURED_TARGET) + "</strong></code></p>",
+    "<p class=note>Ketuk「Ganti 1-Klik」pada baris mana pun di bawah untuk mengganti target SKU secara lokal di ponsel tanpa mengubah skrip; setelah mengganti, buka ulang Google App → Kelola Google One untuk memicu penulisan ulang SKU baru. Ultra 20TB / 30TB tetap otomatis menggunakan <code>g1.20tb.1month_eft.acq</code> / <code>g1.ai.ultra.1month_eft.acq</code> (dengan fallback otomatis ke diskon 90% / 90p).</p>",
     presetTable(), "</section>",
-    "<section><h2>最近一次三档映射</h2>",
-    "<p>版本：" + escape(report.test.version || "暂无") + "<br>状态：" + escape(status) + "；总替换次数：" + report.test.hitCount + "；其中 2TB/Pro：" + report.test.annualHitCount + "</p>",
-    "<p>2TB 源前缀：<code>g1.ios.2tb.</code><br>该次记录的 2TB 目标：<code>" + escape(report.test.target || "暂无记录") + "</code><br>执行时间（UTC）：" + escape(report.test.updatedAt || "暂无") + "</p>",
+    "<section><h2>Pemetaan 3 Paket Terakhir</h2>",
+    "<p>Versi: " + escape(report.test.version || "Belum ada") + "<br>Status: " + escape(status) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/Pro: " + report.test.annualHitCount + "</p>",
+    "<p>Prefiks sumber 2TB: <code>g1.ios.2tb.</code><br>Target 2TB pada catatan ini: <code>" + escape(report.test.target || "Belum tercatat") + "</code><br>Waktu eksekusi (UTC): " + escape(report.test.updatedAt || "Belum ada") + "</p>",
     table(report.test.matchedFrom, false), "</section>",
-    "<section><h2>采集运行记录</h2>",
-    "<p>实际采集脚本：<code>" + escape(report.scan.version || "暂无记录") + "</code><br>" + scanVersionStatus + "</p>",
-    "<p>已扫描文本响应：" + report.scan.scannedResponses + "；已记录非文本响应：" + report.scan.nonTextResponses +
-      "；含商品编号的响应：" + report.scan.matchedResponses + "；累计编号：" + report.scan.skus.length + "</p>",
-    "<h3>最近 10 次响应</h3>", recentTable(report.scan.recentResponses), "</section>",
-    "<section><h2>浏览页面时采集到的候选 SKU</h2>",
+    "<section><h2>Catatan Eksekusi Pengumpulan</h2>",
+    "<p>Skrip pengumpul aktual: <code>" + escape(report.scan.version || "Belum tercatat") + "</code><br>" + scanVersionStatus + "</p>",
+    "<p>Respons teks dipindai: " + report.scan.scannedResponses + "; Respons non-teks tercatat: " + report.scan.nonTextResponses +
+      "; Respons berisi ID produk: " + report.scan.matchedResponses + "; Total ID terkumpul: " + report.scan.skus.length + "</p>",
+    "<h3>10 Respons Terakhir</h3>", recentTable(report.scan.recentResponses), "</section>",
+    "<section><h2>Kandidat SKU yang Terkumpul Saat Menjelajahi Halaman</h2>",
     table(report.scan.skus, true), "</section>",
-    "<form method=get action=\"" + ROOT + "\"><button name=clear value=1>清空本工具的采集与测试记录</button></form>",
-    "<p class=note>开源致谢：本项目基于 <a href=\"https://github.com/crhywun/g1-acq\">crhywun/g1-acq</a> 与 PR #3 (@cehomecambodia-lang) 扩展构建。</p></html>"
+    "<form method=get action=\"" + ROOT + "\"><button name=clear value=1>Kosongkan Catatan Pengumpulan & Pengujian Alat Ini</button></form>",
+    "<p class=note>Atribusi sumber terbuka: Proyek ini dikembangkan dari <a href=\"https://github.com/crhywun/g1-acq\">crhywun/g1-acq</a> dan PR #3 (@cehomecambodia-lang).</p></html>"
   ].join("");
   $done({ response: { status: 200, headers: headers, body: html } });
 })();
