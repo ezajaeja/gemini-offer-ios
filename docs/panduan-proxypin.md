@@ -86,9 +86,9 @@ Jika Anda ingin mengganti target SKU bawaan secara permanen (agar tidak kembali 
 3. Tempel isi skrip ke editor kode skrip (tanpa memakai *Remote Script*).
 4. Ubah baris paling atas sebelum fungsi utama:
    ```javascript
-   var DEFAULT_TARGET = "g1.2tb.ai.18months_eft";
+   var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
    ```
-   menjadi salah satu dari 21 SKU preset yang tercantum di komentar bagian atas file tersebut (misalnya `"g1.2tb.ai.12months_eft"` atau `"g1.2tb.1year_eft"`), lalu ketuk **Save**.
+   menjadi salah satu dari 22 SKU preset yang tercantum di komentar bagian atas file tersebut (misalnya `"g1.2tb.ai.12months_ip_90p"` atau `"g1.2tb.ai.18months_eft"`), lalu ketuk **Save**. Anda juga bisa mengubah `DEFAULT_ULTRA_MODE` (`"75p"`, `"gemini99p"`, `"off"`, dll.).
 
 ### Metode C — Tanpa Skrip via *Request Rewrite* (Sederhana, Khusus 1 Target)
 
@@ -98,7 +98,7 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
 2. Tambah aturan baru (**Add**):
    - **URL:** `https://one.google.com/ai*`
    - **Action / Type:** **Replace Response Body** (*Modify Response*).
-3. Masukkan pola/teks SKU sumber (misalnya regex `g1\.ios\.2tb\.[A-Za-z0-9._-]+` atau string `g1.ios.2tb.m` yang tampak di akun Anda) dan ganti nilainya menjadi target SKU pilihan (misalnya `g1.2tb.ai.18months_eft`), lalu **Save**.
+3. Masukkan pola/teks SKU sumber (misalnya regex `g1\.ios\.(?:ai\.)?2tb\.[A-Za-z0-9._-]+` atau string `g1.ios.ai.2tb.m.ip_3mo_75p.acq` yang tampak di akun Anda) dan ganti nilainya menjadi target SKU pilihan (misalnya `com.google.gemini.2tb.ai.m.3month_ip_99p`), lalu **Save**.
 
 ---
 
@@ -109,9 +109,16 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
    ```text
    https://one.google.com/g1-sku-report
    ```
-3. Pastikan muncul halaman kontrol lokal bertuliskan **`Skrip Lokal ProxyPin Aktif · v8.0.0-proxypin`**.
-4. Pada tabel **Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik**, Anda bisa mengetuk **`Ganti 1-Klik`** untuk mengganti target `g1.ios.2tb.*` selama sesi ProxyPin sedang berjalan.
-   - Paket **Ultra 20TB / 30TB** otomatis dipetakan ke uji coba gratis 1 bulan (`g1.20tb.1month_eft.acq` / `g1.ai.ultra.1month_eft.acq`) dengan fallback otomatis ke diskon 90% 3 bulan (`90p`).
+3. Pastikan muncul halaman kontrol lokal bertuliskan **`Skrip Lokal ProxyPin Aktif · v8.1.0-proxypin`**.
+   *(Catatan cache 15 menit: ProxyPin menyimpan cache Remote Script selama 15 menit. Jika Anda baru memperbarui skrip di GitHub dan Safari masih menampilkan versi lama `v8.0.0-proxypin`, tutup paksa lalu buka ulang ProxyPin, atau masuk ke **Scripts → G1 ACQ Plus → Save** agar ProxyPin mengambil ulang skrip terbaru).*
+4. Pada tabel **Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik**, Anda bisa mengetuk **`Ganti 1-Klik`** untuk mengganti target `g1.ios.2tb.*` & `g1.ios.ai.2tb.*` selama sesi ProxyPin sedang berjalan:
+   - **Bawaan & Rekomendasi iOS (`v8.1.0`):** `com.google.gemini.2tb.ai.m.3month_ip_99p` (Pro 5TB diskon 99% selama 3 bulan) dan kandidat `g1.2tb.ai.12months_ip_90p`.
+   - Preset bertanda **`[Uji Play/iOS]`** (seperti `g1.2tb.ai.18months_eft`, dll.) berasal dari katalog Google Play; sebagian besar tidak terdaftar di iOS StoreKit sehingga bisa memunculkan error *"Pembelian belum selesai, coba pilih paket lagi"*.
+5. Pada tabel **Mode Paket Ultra (20TB / 30TB) 1-Klik**, Anda dapat memilih mode Ultra:
+   - **`75p` (Bawaan `v8.1.0`):** `g1.20tb.3months_ip_75p.acq` / `g1.ai.ultra.3months_ip_75p.acq` (diskon 75% 3 bulan).
+   - **`gemini99p`:** Mengarahkan `g1.ios.20tb.m.v2` → `com.google.gemini.2tb.ai.m.3month_ip_99p` (ketuk tombol langganan Ultra 20TB di Google App untuk memunculkan kasir Pro 5TB diskon 99% 3 bulan).
+   - **`off`:** Membiarkan SKU Ultra asli tanpa penulisan ulang.
+   - *(Mode `trial` `1month_eft.acq` & `90p` tetap tersedia untuk pengujian historis, namun saat ini banyak ditutup di iOS).*
 
 ---
 
@@ -119,7 +126,7 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
 
 1. **Tutup paksa (*force close*)** aplikasi **Google App** terlebih dahulu jika sebelumnya sudah terbuka di latar belakang, agar tidak memakai cache jaringan lama.
 2. Buka **Google App** (ikon huruf **G** warna-warni) → ketuk **foto profil** di pojok kanan atas → pilih **Kelola Google One**.
-3. Masuk ke halaman penawaran paket **2TB / Pro** (atau **20TB / 30TB Ultra**), ketuk opsi bulanan/tahunan jika tersedia agar permintaan `/ai?...` dimuat ulang.
+3. Masuk ke halaman penawaran paket **2TB / AI Pro** (atau **20TB / 30TB Ultra**), ketuk opsi bulanan/tahunan jika tersedia agar permintaan `/ai?...` dimuat ulang.
 4. Lanjutkan ke tombol berlangganan dan periksa **nama paket, durasi uji coba gratis, harga awal, dan harga perpanjangan** yang tampil di lembar kasir **App Store**.
 5. *(Opsional)* Buka kembali Safari ke `https://one.google.com/g1-sku-report` lalu ketuk **Segarkan Laporan** untuk melihat jumlah penggantian (`hitCount`) dan daftar SKU asli yang tertangkap.
 
@@ -127,6 +134,9 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
 
 ## Langkah 7: Pemecahan Masalah (*Troubleshooting*)
 
+- **Muncul popup *"Pembelian belum selesai, coba pilih paket lagi"* saat memilih paket di Google App:**
+  - **Untuk paket Ultra (20TB / 30TB):** SKU uji coba `1month_eft.acq` dan `90p` sudah banyak dinonaktifkan oleh Apple/Google sehingga StoreKit menolak ID tersebut. Pastikan sudah memakai `v8.1.0-proxypin` (bawaan mode `75p`), atau coba ganti ke mode `gemini99p` / `off` di halaman kontrol Safari.
+  - **Untuk paket 2TB / AI Pro:** Jika Anda memilih preset `eft` (seperti `g1.2tb.ai.18months_eft`), ID tersebut berasal dari katalog Google Play Android (`BillingClient`) dan sering kali tidak tersedia di App Store iOS. Beralihlah ke **`com.google.gemini.2tb.ai.m.3month_ip_99p`** (`[Rekomendasi iOS]`) atau **`g1.2tb.ai.12months_ip_90p`** (`[Kandidat iOS]`) lewat tombol **Ganti 1-Klik** di Safari.
 - **Halaman `https://one.google.com/g1-sku-report` masih menampilkan halaman 404 Google:**
   - Pastikan VPN ProxyPin sedang berjalan (**Start**).
   - Pastikan **Enable HTTPS Proxy** aktif dan sertifikat **ProxyPin CA** sudah dipercaya penuh di **Settings → General → About → Certificate Trust Settings**.
@@ -137,7 +147,7 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
 - **Cara memverifikasi penulisan ulang langsung di tab *Requests* ProxyPin:**
   - Buka tab **Requests** di ProxyPin dan cari permintaan menuju `https://one.google.com/ai?...`.
   - Periksa bagian **Response Headers**: jika penulisan ulang berhasil, skrip menambahkan header:
-    `X-G1-ACQ-ProxyPin: g1-acq-v8.0-proxypin; target=...; hits=...`
+    `X-G1-ACQ-ProxyPin: g1-acq-v8.1-proxypin; target=...; ultra=...; hits=...`
     dengan nilai `hits` lebih dari `0`.
 - **Setelah selesai digunakan:**
   - Ketuk **Stop** pada ProxyPin agar trafik harian iPhone tidak terus melewati proxy lokal.

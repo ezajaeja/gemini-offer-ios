@@ -9,15 +9,25 @@
 "use strict";
 
 (function () {
-  var VERSION = "g1-acq-v8.0";
-  var SOURCE_PREFIX = "g1.ios.2tb.";
+  var VERSION = "g1-acq-v8.1";
+  var PRO_PREFIXES = ["g1.ios.2tb.", "g1.ios.ai.2tb."];
+  var SOURCE_PREFIX = "g1.ios.2tb. | g1.ios.ai.2tb.";
   var TARGET_OVERRIDE_KEY = "g1.target.override.v1";
 
-  // Target bawaan untuk 2TB / Pro 5TB: uji coba gratis $0 18 bulan (dapat diganti di Safari melalui https://one.google.com/g1-sku-report)
-  var DEFAULT_TARGET = "g1.2tb.ai.18months_eft";
+  // Target bawaan untuk 2TB / AI Pro 5TB: com.google.gemini.2tb.ai.m.3month_ip_99p (terverifikasi iOS StoreKit; dapat diganti di Safari melalui https://one.google.com/g1-sku-report)
+  var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
+
+  function isProSource(id) {
+    for (var i = 0; i < PRO_PREFIXES.length; i++) {
+      if (id.indexOf(PRO_PREFIXES[i]) === 0 && id.length > PRO_PREFIXES[i].length) return true;
+    }
+    return false;
+  }
 
   // Rantai prioritas untuk 2TB / Pro 5TB saat memilih otomatis dari body respons
   var PRO_CHAIN = [
+    "com.google.gemini.2tb.ai.m.3month_ip_99p",
+    "g1.2tb.ai.12months_ip_90p",
     "g1.2tb.ai.18months_eft",
     "g1.2tb.ai.15months_eft",
     "g1.2tb.ai.12months_eft",
@@ -29,19 +39,15 @@
     "g1.2tb.ai.2months_eft",
     "g1.2tb.1year_eft",
     "g1.2tb.6months_eft",
-    "g1.2tb.ai.12months_ip_90p",
     "g1.2tb.ai.3months_ip_90p.acq",
     "g1.2tb.ai.1month_ip_95p.acq"
   ];
 
   var SKU_MAP = {
-    "g1.ios.20tb.m.v2": "g1.20tb.1month_eft.acq",
-    "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.1month_eft.acq"
+    "g1.ios.20tb.m.v2": "g1.20tb.3months_ip_75p.acq",
+    "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.3months_ip_75p.acq"
   };
-  var FALLBACK = {
-    "g1.20tb.1month_eft.acq": "g1.20tb.3months_ip_90p.acq",
-    "g1.ai.ultra.1month_eft.acq": "g1.ai.ultra.3months_ip_90p.acq"
-  };
+  var FALLBACK = {};
 
   var TEST_KEY = "g1.pro.annual.test.v1";
   var SCAN_KEY = "g1.sku.scan.v1";
@@ -60,7 +66,7 @@
   try {
     if (typeof $persistentStore !== "undefined" && typeof $persistentStore.read === "function") {
       var customTarget = ($persistentStore.read(TARGET_OVERRIDE_KEY) || "").trim();
-      if (/^g1\.[A-Za-z0-9._-]{2,120}$/.test(customTarget)) {
+      if (/^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{2,160}$/.test(customTarget)) {
         TARGET = customTarget;
       }
     }
@@ -84,11 +90,11 @@
   var out = body;
 
   if (typeof body === "string") {
-    var observed = body.match(/g1\.[a-z0-9._]{2,60}(?:acq|eft|90p|95p|subs_variant|student)/g) || [];
+    var observed = body.match(/(?:g1\.|com\.google\.(?:one|gemini)\.)[a-z0-9._]{2,60}(?:acq|eft|90p|95p|99p|75p|subs_variant|student)/g) || [];
     out = body.replace(
-      /(^|[^A-Za-z0-9._@%-])(g1\.[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g,
+      /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g,
       function (match, before, id) {
-        var isAnnual = id.indexOf(SOURCE_PREFIX) === 0 && id.length > SOURCE_PREFIX.length;
+        var isAnnual = isProSource(id);
         var to;
         var fallback = false;
         if (isAnnual) {
@@ -159,7 +165,7 @@
 
     var byId = Object.create(null);
     var ids = [];
-    var validId = /^(?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]{1,160}$/;
+    var validId = /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/;
     var oldRows = Array.isArray(saved.skus) ? saved.skus : [];
     oldRows.slice(0, SCAN_LIMIT).forEach(function (row) {
       if (!row || typeof row.id !== "string" || !validId.test(row.id) || byId[row.id]) return;
@@ -180,7 +186,7 @@
     var truncated = saved.truncated === true;
     if (isText) {
       var text = originalBody.replace(/\\u002e|\\x2e|&#0*46;|&#x0*2e;|&period;/gi, ".");
-      var token = /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g;
+      var token = /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g;
       var match;
       while ((match = token.exec(text)) !== null) {
         var id = match[2];

@@ -8,15 +8,23 @@
 
 (function () {
   var ROOT = "https://one.google.com/g1-sku-report";
-  var VERSION = "v8.0.0";
-  var COLLECTOR_VERSION = "g1-acq-v8.0";
-  var DEFAULT_TARGET = "g1.2tb.ai.18months_eft";
+  var VERSION = "v8.1.0";
+  var COLLECTOR_VERSION = "g1-acq-v8.1";
+  var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
   var TARGET_OVERRIDE_KEY = "g1.target.override.v1";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
   var SCAN_KEY = "g1.sku.scan.v1";
   var TEST_KEY = "g1.pro.annual.test.v1";
 
+  function isProSource(id) {
+    return typeof id === "string" &&
+      ((id.indexOf("g1.ios.2tb.") === 0 && id.length > 11) ||
+       (id.indexOf("g1.ios.ai.2tb.") === 0 && id.length > 14));
+  }
+
   var PRESET_SKUS = [
+    { sku: "com.google.gemini.2tb.ai.m.3month_ip_99p", label: "[Rekomendasi iOS] Pro 5TB · Diskon 99% 3 bulan (com.google.gemini...99p)", tag: "iOS 99% OFF" },
+    { sku: "g1.2tb.ai.12months_ip_90p", label: "[Kandidat iOS] Pro 5TB · Promo diskon 90% 12 bulan ($1.99/bln × 12 = $23.88)", tag: "iOS $1.99×12M" },
     { sku: "g1.2tb.ai.18months_eft", label: "★ Pro 5TB · Uji coba gratis $0 18 bulan (eft-18months)", tag: "FREE 18M" },
     { sku: "g1.2tb.ai.15months_eft", label: "★ Pro 5TB · Uji coba gratis $0 15 bulan (eft-15months)", tag: "FREE 15M" },
     { sku: "g1.2tb.ai.12months_eft", label: "★ Pro 5TB · Uji coba gratis $0 12 bulan (eft-12months)", tag: "FREE 12M" },
@@ -54,10 +62,10 @@
   var targetMatch = /(?:\?|&)set_target=([A-Za-z0-9._-]+)(?:&|$)/.exec(url);
   if (targetMatch && storageAvailable) {
     var newTarget = decodeURIComponent(targetMatch[1]);
-    if (/^g1\.[A-Za-z0-9._-]{2,120}$/.test(newTarget)) {
+    if (/^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{2,160}$/.test(newTarget)) {
       try {
         var okWrite = $persistentStore.write(newTarget, TARGET_OVERRIDE_KEY);
-        clearMessage = okWrite ? ("✅ Target penulisan ulang bawaan 2TB/Pro diubah ke: " + newTarget + " (kembali ke Google App dan buka ulang halaman paket untuk memicu penulisan ulang)") : "Gagal menyimpan pergantian target.";
+        clearMessage = okWrite ? ("✅ Target penulisan ulang bawaan 2TB/AI Pro diubah ke: " + newTarget + " (kembali ke Google App dan buka ulang halaman paket untuk memicu penulisan ulang)") : "Gagal menyimpan pergantian target.";
       } catch (e) {
         clearMessage = "Antarmuka penyimpanan lokal belum siap.";
       }
@@ -78,7 +86,7 @@
   if (storageAvailable) {
     try {
       var custom = ($persistentStore.read(TARGET_OVERRIDE_KEY) || "").trim();
-      if (/^g1\.[A-Za-z0-9._-]{2,120}$/.test(custom)) {
+      if (/^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{2,160}$/.test(custom)) {
         CONFIGURED_TARGET = custom;
       }
     } catch (e) {}
@@ -101,19 +109,19 @@
     return isFinite(number) && number > 0 ? Math.floor(number) : 0;
   }
   function sku(value) {
-    return typeof value === "string" && /^g1\.[A-Za-z0-9._-]{1,160}$/.test(value) ? value : "";
+    return typeof value === "string" && /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/.test(value) ? value : "";
   }
   function rows(value, withTime, defaultTarget) {
     if (!Array.isArray(value)) return [];
     return value.slice(0, 300).filter(function (row) {
       return row && typeof row.id === "string" &&
-        /^(?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]{1,160}$/.test(row.id);
+        /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/.test(row.id);
     }).map(function (row) {
       var out = { id: row.id, count: count(row.count) };
       if (withTime) {
         out.lastSeen = text(row.lastSeen, 32);
       } else {
-        out.to = sku(row.to) || (row.id.indexOf("g1.ios.2tb.") === 0 ? defaultTarget || "" : "");
+        out.to = sku(row.to) || (isProSource(row.id) ? defaultTarget || "" : "");
         out.fallback = row.fallback === true;
       }
       return out;
@@ -157,7 +165,7 @@
   var matchedFrom = rows(testRaw.matchedFrom, false, recordedTarget);
   if (!recordedTarget) {
     matchedFrom.some(function (row) {
-      if (row.id.indexOf("g1.ios.2tb.") === 0 && row.to) {
+      if (isProSource(row.id) && row.to) {
         recordedTarget = row.to;
         return true;
       }
@@ -166,7 +174,7 @@
   }
   var annualHitCount = typeof testRaw.annualHitCount === "number" ? count(testRaw.annualHitCount) :
     matchedFrom.reduce(function (total, row) {
-      return total + (row.id.indexOf("g1.ios.2tb.") === 0 ? row.count : 0);
+      return total + (isProSource(row.id) ? row.count : 0);
     }, 0);
   var storedOrigin = text(testRaw.targetOrigin, 32);
   var targetOrigin = recordedTarget && /^(?:user-specified|pattern-derived|legacy)$/.test(storedOrigin) ?
@@ -191,7 +199,7 @@
     test: {
       version: text(testRaw.version, 32),
       updatedAt: text(testRaw.updatedAt, 32),
-      sourcePrefix: "g1.ios.2tb.",
+      sourcePrefix: "g1.ios.2tb. | g1.ios.ai.2tb.",
       target: recordedTarget,
       targetOrigin: targetOrigin,
       status: text(testRaw.status, 32),
@@ -275,12 +283,12 @@
     "<nav class=actions aria-label=\"Aksi laporan\"><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>Ekspor JSON</button></form><a href=\"" + ROOT + "\">Segarkan Laporan</a></nav>",
     clearMessage ? "<p style=\"background:#fff8db;padding:12px;border-radius:8px;border:1px solid #e6d087\">" + escape(clearMessage) + "</p>" : "",
     "<section><h2>Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik</h2>",
-    "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> yang aktif saat ini: <code><strong>" + escape(CONFIGURED_TARGET) + "</strong></code></p>",
-    "<p class=note>Ketuk「Ganti 1-Klik」pada baris mana pun di bawah untuk mengganti target SKU secara lokal di ponsel tanpa mengubah skrip; setelah mengganti, buka ulang Google App → Kelola Google One untuk memicu penulisan ulang SKU baru. Ultra 20TB / 30TB tetap otomatis menggunakan <code>g1.20tb.1month_eft.acq</code> / <code>g1.ai.ultra.1month_eft.acq</code> (dengan fallback otomatis ke diskon 90% / 90p).</p>",
+    "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> &amp; <code>g1.ios.ai.2tb.*</code> yang aktif saat ini: <code><strong>" + escape(CONFIGURED_TARGET) + "</strong></code></p>",
+    "<p class=note>Ketuk「Ganti 1-Klik」pada baris mana pun di bawah untuk mengganti target SKU secara lokal di ponsel tanpa mengubah skrip; setelah mengganti, buka ulang Google App → Kelola Google One untuk memicu penulisan ulang SKU baru. Ultra 20TB / 30TB saat ini memakai mode diskon 75% 3 bulan (<code>g1.20tb.3months_ip_75p.acq</code> / <code>g1.ai.ultra.3months_ip_75p.acq</code>).</p>",
     presetTable(), "</section>",
     "<section><h2>Pemetaan 3 Paket Terakhir</h2>",
-    "<p>Versi: " + escape(report.test.version || "Belum ada") + "<br>Status: " + escape(status) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/Pro: " + report.test.annualHitCount + "</p>",
-    "<p>Prefiks sumber 2TB: <code>g1.ios.2tb.</code><br>Target 2TB pada catatan ini: <code>" + escape(report.test.target || "Belum tercatat") + "</code><br>Waktu eksekusi (UTC): " + escape(report.test.updatedAt || "Belum ada") + "</p>",
+    "<p>Versi: " + escape(report.test.version || "Belum ada") + "<br>Status: " + escape(status) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/AI Pro: " + report.test.annualHitCount + "</p>",
+    "<p>Prefiks sumber 2TB / AI Pro: <code>g1.ios.2tb. | g1.ios.ai.2tb.</code><br>Target 2TB pada catatan ini: <code>" + escape(report.test.target || "Belum tercatat") + "</code><br>Waktu eksekusi (UTC): " + escape(report.test.updatedAt || "Belum ada") + "</p>",
     table(report.test.matchedFrom, false), "</section>",
     "<section><h2>Catatan Eksekusi Pengumpulan</h2>",
     "<p>Skrip pengumpul aktual: <code>" + escape(report.scan.version || "Belum tercatat") + "</code><br>" + scanVersionStatus + "</p>",

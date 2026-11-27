@@ -1,5 +1,12 @@
-/* G1 ACQ Plus (v8.0.0-proxypin) — Skrip ProxyPin (iOS / Android / Desktop)
- * Alternatif gratis tanpa Shadowrocket untuk Google One SKU uji coba gratis & diskon tersembunyi.
+/* G1 ACQ Plus (v8.1.0-proxypin) - Skrip ProxyPin (iOS / Android / Desktop)
+ * Alternatif gratis tanpa Shadowrocket untuk Google One SKU diskon & uji coba tersembunyi.
+ *
+ * Pembaruan v8.1.0:
+ *   - Mencocokkan prefiks baru AI Pro iOS (`g1.ios.ai.2tb.*`) selain `g1.ios.2tb.*`.
+ *   - Mendukung namespace `com.google.gemini.*` dan target terverifikasi iOS
+ *     `com.google.gemini.2tb.ai.m.3month_ip_99p` (Pro 5TB diskon 99% 3 bulan).
+ *   - Mengubah mode bawaan Ultra 20TB/30TB ke `75p` (karena `1month_eft.acq` & `90p`
+ *     sudah banyak ditutup Apple/Google) serta menambah pengalih Mode Ultra 1-Klik.
  *
  * Cara Pasang Singkat di ProxyPin:
  *   1. Buka menu Scripts -> pastikan Enable Scripts aktif -> Add (+).
@@ -14,43 +21,49 @@
  *
  * Atribusi & Kredit:
  *   - Berdasarkan proyek sumber terbuka crhywun/g1-acq (https://github.com/crhywun/g1-acq) oleh @crhywun
- *   - Pemetaan Ultra 20TB/30TB 1 bulan gratis oleh @cehomecambodia-lang (PR #3)
- *   - Diperluas pada v8.0.0 dengan SKU 18M/15M/12M/9M/6M gratis dan adaptasi runtime ProxyPin.
+ *   - PR #3 (@cehomecambodia-lang) & PR #8 (@duwqijlk) untuk com.google.gemini.2tb.ai.m.3month_ip_99p
  */
 "use strict";
 
-// Ubah nilai DEFAULT_TARGET di bawah ini jika ingin mengganti target SKU bawaan secara permanen.
-// Daftar 21 SKU preset yang tersedia:
-//   - "g1.2tb.ai.18months_eft"      : Pro 5TB · Uji coba gratis $0 18 bulan (Bawaan)
-//   - "g1.2tb.ai.15months_eft"      : Pro 5TB · Uji coba gratis $0 15 bulan
-//   - "g1.2tb.ai.12months_eft"      : Pro 5TB · Uji coba gratis $0 12 bulan
-//   - "g1.2tb.ai.subs_variant"      : Pro 5TB · Varian uji coba gratis $0 12 bulan / 6 bulan
-//   - "g1.play.2tb.ai.student"      : Pro 5TB · Jalur Pelajar uji coba gratis $0 12 bulan
-//   - "g1.2tb.ai.6months_eft"       : Pro 5TB · Uji coba gratis $0 6 bulan
-//   - "g1.2tb.ai.4months_eft"       : Pro 5TB · Uji coba gratis $0 4 bulan
-//   - "g1.2tb.ai.3months_eft"       : Pro 5TB · Uji coba gratis $0 3 bulan
-//   - "g1.2tb.ai.2months_eft"       : Pro 5TB · Uji coba gratis $0 2 bulan
-//   - "g1.2tb.ai.12months_ip_90p"   : Pro 5TB · Diskon 90% 12 bulan ($1.99/bln x 12 = $23.88)
-//   - "g1.2tb.ai.3months_ip_90p.acq": Pro 5TB · Diskon 90% 3 bulan ($1.99/bln x 3)
-//   - "g1.2tb.ai.1month_ip_95p.acq" : Pro 5TB · Diskon 95% bulan pertama ($0.99/bln pertama)
-//   - "g1.2tb.1year_eft"            : AI Plus 2TB · Uji coba gratis $0 12 bulan
-//   - "g1.2tb.6months_eft"          : AI Plus 2TB · Uji coba gratis $0 6 bulan
-//   - "g1.2tb.subs_variant"         : AI Plus 2TB · Varian uji coba gratis $0 6 bulan / 3 bulan
-//   - "g1.play.helium"              : AI Plus 400GB · Uji coba gratis $0 12 bulan
-//   - "g1.play.helium.student"      : AI Plus 400GB · Pelajar uji coba gratis $0 12 bulan
-//   - "g1.helium.12months_ip_90p"   : AI Plus 400GB · Diskon 90% 12 bulan ($0.49/bln x 12)
-//   - "g1.100gb.1year_eft"          : Penyimpanan 100GB · Uji coba gratis $0 12 bulan
-//   - "g1.100gb.9months_eft"        : Penyimpanan 100GB · Uji coba gratis $0 9 bulan
-//   - "g1.200gb.1year_eft"          : Penyimpanan 200GB · Uji coba gratis $0 12 bulan
-var DEFAULT_TARGET = "g1.2tb.ai.18months_eft";
+// Ubah DEFAULT_TARGET atau DEFAULT_ULTRA_MODE di bawah ini jika ingin mengganti bawaan secara permanen.
+// Rekomendasi Terverifikasi iOS StoreKit:
+//   - "com.google.gemini.2tb.ai.m.3month_ip_99p" : [Rekomendasi iOS] Pro 5TB - Diskon 99% 3 bulan (~Rp1rb-2rb/bln)
+//   - "g1.2tb.ai.12months_ip_90p"                : [Kandidat iOS] Pro 5TB - Diskon 90% 12 bulan ($1.99/bln x 12)
+// Daftar Preset Uji Play/iOS (sebagian SKU `eft` berasal dari katalog Play dan dapat ditolak iOS StoreKit):
+//   - "g1.2tb.ai.18months_eft"      : Pro 5TB - Uji coba gratis $0 18 bulan
+//   - "g1.2tb.ai.15months_eft"      : Pro 5TB - Uji coba gratis $0 15 bulan
+//   - "g1.2tb.ai.12months_eft"      : Pro 5TB - Uji coba gratis $0 12 bulan
+//   - "g1.2tb.ai.subs_variant"      : Pro 5TB - Varian uji coba gratis $0 12 bulan / 6 bulan
+//   - "g1.play.2tb.ai.student"      : Pro 5TB - Jalur Pelajar uji coba gratis $0 12 bulan
+//   - "g1.2tb.ai.6months_eft"       : Pro 5TB - Uji coba gratis $0 6 bulan
+//   - "g1.2tb.ai.4months_eft"       : Pro 5TB - Uji coba gratis $0 4 bulan
+//   - "g1.2tb.ai.3months_eft"       : Pro 5TB - Uji coba gratis $0 3 bulan
+//   - "g1.2tb.ai.2months_eft"       : Pro 5TB - Uji coba gratis $0 2 bulan
+//   - "g1.2tb.ai.3months_ip_90p.acq": Pro 5TB - Diskon 90% 3 bulan ($1.99/bln x 3)
+//   - "g1.2tb.ai.1month_ip_95p.acq" : Pro 5TB - Diskon 95% bulan pertama ($0.99/bln pertama)
+//   - "g1.2tb.1year_eft"            : AI Plus 2TB - Uji coba gratis $0 12 bulan
+//   - "g1.2tb.6months_eft"          : AI Plus 2TB - Uji coba gratis $0 6 bulan
+//   - "g1.2tb.subs_variant"         : AI Plus 2TB - Varian uji coba gratis $0 6 bulan / 3 bulan
+//   - "g1.play.helium"              : AI Plus 400GB - Uji coba gratis $0 12 bulan
+//   - "g1.play.helium.student"      : AI Plus 400GB - Pelajar uji coba gratis $0 12 bulan
+//   - "g1.helium.12months_ip_90p"   : AI Plus 400GB - Diskon 90% 12 bulan ($0.49/bln x 12)
+//   - "g1.100gb.1year_eft"          : Penyimpanan 100GB - Uji coba gratis $0 12 bulan
+//   - "g1.100gb.9months_eft"        : Penyimpanan 100GB - Uji coba gratis $0 9 bulan
+//   - "g1.200gb.1year_eft"          : Penyimpanan 200GB - Uji coba gratis $0 12 bulan
+//
+// Pilihan DEFAULT_ULTRA_MODE: "75p" (bawaan), "gemini99p", "trial", "90p", "tr", "off"
+var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
+var DEFAULT_ULTRA_MODE = "75p";
 
 var G1AcqProxyPin = (function () {
-  var VERSION = "g1-acq-v8.0-proxypin";
-  var REPORT_VERSION = "v8.0.0-proxypin";
+  var VERSION = "g1-acq-v8.1-proxypin";
+  var REPORT_VERSION = "v8.1.0-proxypin";
   var ROOT = "https://one.google.com/g1-sku-report";
-  var SOURCE_PREFIX = "g1.ios.2tb.";
+  var PRO_PREFIXES = ["g1.ios.2tb.", "g1.ios.ai.2tb."];
+  var SOURCE_PREFIX_LABEL = "g1.ios.2tb. | g1.ios.ai.2tb.";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
   var SESSION_OVERRIDE_KEY = "g1_target_override";
+  var SESSION_ULTRA_KEY = "g1_ultra_mode";
   var SESSION_SCAN_KEY = "g1_scan_state";
   var SESSION_TEST_KEY = "g1_test_record";
   var SCAN_LIMIT = 300;
@@ -59,44 +72,110 @@ var G1AcqProxyPin = (function () {
   var OTHER_PATH_LABEL = "[Jalur one.google.com lainnya]";
   var BATCH_PATH_LABEL = "/_/.../data/batchexecute";
 
-  var SKU_MAP = {
-    "g1.ios.20tb.m.v2": "g1.20tb.1month_eft.acq",
-    "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.1month_eft.acq"
-  };
-
   var FALLBACK = {
     "g1.20tb.1month_eft.acq": "g1.20tb.3months_ip_90p.acq",
     "g1.ai.ultra.1month_eft.acq": "g1.ai.ultra.3months_ip_90p.acq"
   };
 
+  var ULTRA_MODES = [
+    {
+      mode: "75p",
+      tag: "iOS 75p",
+      label: "[Bawaan] Ultra 20TB / 30TB Diskon 75% 3 bulan (g1.20tb.3months_ip_75p.acq & g1.ai.ultra.3months_ip_75p.acq)",
+      map: {
+        "g1.ios.20tb.m.v2": "g1.20tb.3months_ip_75p.acq",
+        "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.3months_ip_75p.acq"
+      }
+    },
+    {
+      mode: "gemini99p",
+      tag: "PRO 99% OFF",
+      label: "[PR #8 iOS] Ketuk Ultra 20TB untuk membuka kasir Pro 5TB Diskon 99% 3 bulan (com.google.gemini.2tb.ai.m.3month_ip_99p); 30TB dilewati",
+      map: {
+        "g1.ios.20tb.m.v2": "com.google.gemini.2tb.ai.m.3month_ip_99p"
+      }
+    },
+    {
+      mode: "trial",
+      tag: "TRIAL 1M",
+      label: "[Banyak Ditutup di iOS] Ultra 20TB / 30TB Uji coba gratis 1 bulan (1month_eft.acq, fallback 90p)",
+      map: {
+        "g1.ios.20tb.m.v2": "g1.20tb.1month_eft.acq",
+        "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.1month_eft.acq"
+      }
+    },
+    {
+      mode: "90p",
+      tag: "90p 3M",
+      label: "[Banyak Ditutup di iOS] Ultra 20TB / 30TB Diskon 90% 3 bulan (3months_ip_90p.acq)",
+      map: {
+        "g1.ios.20tb.m.v2": "g1.20tb.3months_ip_90p.acq",
+        "g1.ios.30tb.ai.pro.m": "g1.ai.ultra.3months_ip_90p.acq"
+      }
+    },
+    {
+      mode: "tr",
+      tag: "TR / LEGACY",
+      label: "Ultra 20TB / 30TB SKU iOS Turki / Lama (g1.ios.20tb.m & g1.ios.30tb.m)",
+      map: {
+        "g1.ios.20tb.m.v2": "g1.ios.20tb.m",
+        "g1.ios.30tb.ai.pro.m": "g1.ios.30tb.m"
+      }
+    },
+    {
+      mode: "off",
+      tag: "OFF",
+      label: "Nonaktif - Biarkan SKU Ultra 20TB / 30TB asli tanpa penulisan ulang",
+      map: {}
+    }
+  ];
+
   var PRESET_SKUS = [
-    { sku: "g1.2tb.ai.18months_eft", label: "[Top] Pro 5TB - Uji coba gratis $0 18 bulan (eft-18months)", tag: "FREE 18M" },
-    { sku: "g1.2tb.ai.15months_eft", label: "[Top] Pro 5TB - Uji coba gratis $0 15 bulan (eft-15months)", tag: "FREE 15M" },
-    { sku: "g1.2tb.ai.12months_eft", label: "[Top] Pro 5TB - Uji coba gratis $0 12 bulan (eft-12months)", tag: "FREE 12M" },
-    { sku: "g1.2tb.ai.subs_variant", label: "Pro 5TB - Varian uji coba gratis $0 12 bulan/6 bulan (subs_variant)", tag: "FREE 12M/6M" },
-    { sku: "g1.play.2tb.ai.student", label: "[Top] Pro 5TB - Jalur Pelajar Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
-    { sku: "g1.2tb.ai.6months_eft", label: "Pro 5TB - Uji coba gratis $0 6 bulan (eft-6months)", tag: "FREE 6M" },
-    { sku: "g1.2tb.ai.4months_eft", label: "Pro 5TB - Uji coba gratis $0 4 bulan (eft-4months)", tag: "FREE 4M" },
-    { sku: "g1.2tb.ai.3months_eft", label: "Pro 5TB - Uji coba gratis $0 3 bulan (eft-3months)", tag: "FREE 3M" },
-    { sku: "g1.2tb.ai.2months_eft", label: "Pro 5TB - Uji coba gratis $0 2 bulan (eft-2months)", tag: "FREE 2M" },
-    { sku: "g1.2tb.ai.12months_ip_90p", label: "Pro 5TB - Promo diskon 90% 12 bulan ($1.99/bln x 12 = $23.88)", tag: "$1.99x12M" },
-    { sku: "g1.2tb.ai.3months_ip_90p.acq", label: "Pro 5TB - Promo diskon 90% 3 bulan ($1.99/bln x 3)", tag: "$1.99x3M" },
-    { sku: "g1.2tb.ai.1month_ip_95p.acq", label: "Pro 5TB - Promo diskon 95% 1 bulan ($0.99/bulan pertama)", tag: "$0.99x1M" },
-    { sku: "g1.2tb.1year_eft", label: "[Top] AI Plus 2TB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
-    { sku: "g1.2tb.6months_eft", label: "AI Plus 2TB - Uji coba gratis $0 6 bulan (6months_eft)", tag: "FREE 6M" },
-    { sku: "g1.2tb.subs_variant", label: "AI Plus 2TB - Varian uji coba gratis $0 6 bulan/3 bulan", tag: "FREE 6M/3M" },
-    { sku: "g1.play.helium", label: "[Top] AI Plus 400GB - Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
-    { sku: "g1.play.helium.student", label: "AI Plus 400GB - Pelajar Uji coba gratis $0 12 bulan", tag: "FREE 12M" },
-    { sku: "g1.helium.12months_ip_90p", label: "AI Plus 400GB - Diskon 90% 12 bulan ($0.49/bln x 12 = $5.88/thn)", tag: "$0.49x12M" },
-    { sku: "g1.100gb.1year_eft", label: "[Top] Penyimpanan 100GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
-    { sku: "g1.100gb.9months_eft", label: "[Top] Penyimpanan 100GB - Uji coba gratis $0 9 bulan (9months_eft)", tag: "FREE 9M" },
-    { sku: "g1.200gb.1year_eft", label: "[Top] Penyimpanan 200GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" }
+    { sku: "com.google.gemini.2tb.ai.m.3month_ip_99p", label: "[Rekomendasi iOS] Pro 5TB - Diskon 99% 3 bulan (com.google.gemini...99p)", tag: "iOS 99% OFF" },
+    { sku: "g1.2tb.ai.12months_ip_90p", label: "[Kandidat iOS] Pro 5TB - Diskon 90% 12 bulan ($1.99/bln x 12 = $23.88)", tag: "iOS $1.99x12M" },
+    { sku: "g1.2tb.ai.18months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 18 bulan (eft-18months)", tag: "FREE 18M" },
+    { sku: "g1.2tb.ai.15months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 15 bulan (eft-15months)", tag: "FREE 15M" },
+    { sku: "g1.2tb.ai.12months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 12 bulan (eft-12months)", tag: "FREE 12M" },
+    { sku: "g1.2tb.ai.subs_variant", label: "[Uji Play/iOS] Pro 5TB - Varian uji coba gratis $0 12 bulan/6 bulan (subs_variant)", tag: "FREE 12M/6M" },
+    { sku: "g1.play.2tb.ai.student", label: "[Uji Play/iOS] Pro 5TB - Jalur Pelajar Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
+    { sku: "g1.2tb.ai.6months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 6 bulan (eft-6months)", tag: "FREE 6M" },
+    { sku: "g1.2tb.ai.4months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 4 bulan (eft-4months)", tag: "FREE 4M" },
+    { sku: "g1.2tb.ai.3months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 3 bulan (eft-3months)", tag: "FREE 3M" },
+    { sku: "g1.2tb.ai.2months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 2 bulan (eft-2months)", tag: "FREE 2M" },
+    { sku: "g1.2tb.ai.3months_ip_90p.acq", label: "[Uji Play/iOS] Pro 5TB - Promo diskon 90% 3 bulan ($1.99/bln x 3)", tag: "$1.99x3M" },
+    { sku: "g1.2tb.ai.1month_ip_95p.acq", label: "[Uji Play/iOS] Pro 5TB - Promo diskon 95% 1 bulan ($0.99/bulan pertama)", tag: "$0.99x1M" },
+    { sku: "g1.2tb.1year_eft", label: "[Uji Play/iOS] AI Plus 2TB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
+    { sku: "g1.2tb.6months_eft", label: "[Uji Play/iOS] AI Plus 2TB - Uji coba gratis $0 6 bulan (6months_eft)", tag: "FREE 6M" },
+    { sku: "g1.2tb.subs_variant", label: "[Uji Play/iOS] AI Plus 2TB - Varian uji coba gratis $0 6 bulan/3 bulan", tag: "FREE 6M/3M" },
+    { sku: "g1.play.helium", label: "[Uji Play/iOS] AI Plus 400GB - Uji coba gratis $0 12 bulan (eft-12mo)", tag: "FREE 12M" },
+    { sku: "g1.play.helium.student", label: "[Uji Play/iOS] AI Plus 400GB - Pelajar Uji coba gratis $0 12 bulan", tag: "FREE 12M" },
+    { sku: "g1.helium.12months_ip_90p", label: "[Uji Play/iOS] AI Plus 400GB - Diskon 90% 12 bulan ($0.49/bln x 12 = $5.88/thn)", tag: "$0.49x12M" },
+    { sku: "g1.100gb.1year_eft", label: "[Uji Play/iOS] Penyimpanan 100GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
+    { sku: "g1.100gb.9months_eft", label: "[Uji Play/iOS] Penyimpanan 100GB - Uji coba gratis $0 9 bulan (9months_eft)", tag: "FREE 9M" },
+    { sku: "g1.200gb.1year_eft", label: "[Uji Play/iOS] Penyimpanan 200GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" }
   ];
 
   var memState = {};
 
   function isValidSku(value) {
-    return typeof value === "string" && /^g1\.[A-Za-z0-9._-]{2,120}$/.test(value);
+    return typeof value === "string" &&
+      /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{2,160}$/.test(value);
+  }
+
+  function isProSource(id) {
+    if (typeof id !== "string") return false;
+    for (var i = 0; i < PRO_PREFIXES.length; i++) {
+      var prefix = PRO_PREFIXES[i];
+      if (id.indexOf(prefix) === 0 && id.length > prefix.length) return true;
+    }
+    return false;
+  }
+
+  function findUltraMode(mode) {
+    for (var i = 0; i < ULTRA_MODES.length; i++) {
+      if (ULTRA_MODES[i].mode === mode) return ULTRA_MODES[i];
+    }
+    return null;
   }
 
   function ensureContext(context, response) {
@@ -150,7 +229,7 @@ var G1AcqProxyPin = (function () {
     if (typeof memState[SESSION_OVERRIDE_KEY] === "string" && isValidSku(memState[SESSION_OVERRIDE_KEY])) {
       return memState[SESSION_OVERRIDE_KEY];
     }
-    return isValidSku(DEFAULT_TARGET) ? DEFAULT_TARGET : "g1.2tb.ai.18months_eft";
+    return isValidSku(DEFAULT_TARGET) ? DEFAULT_TARGET : "com.google.gemini.2tb.ai.m.3month_ip_99p";
   }
 
   function writeOverride(ctx, newTarget) {
@@ -160,6 +239,31 @@ var G1AcqProxyPin = (function () {
     }
     if (ctx && ctx.env && typeof ctx.env === "object" && Object.prototype.hasOwnProperty.call(ctx.env, "G1_TARGET_SKU")) {
       ctx.env.G1_TARGET_SKU = newTarget;
+    }
+  }
+
+  function readUltraMode(ctx) {
+    if (ctx && ctx.session && typeof ctx.session[SESSION_ULTRA_KEY] === "string") {
+      var sMode = ctx.session[SESSION_ULTRA_KEY].trim();
+      if (findUltraMode(sMode)) return sMode;
+    }
+    if (ctx && ctx.env && typeof ctx.env.G1_ULTRA_MODE === "string") {
+      var eMode = ctx.env.G1_ULTRA_MODE.trim();
+      if (findUltraMode(eMode)) return eMode;
+    }
+    if (typeof memState[SESSION_ULTRA_KEY] === "string" && findUltraMode(memState[SESSION_ULTRA_KEY])) {
+      return memState[SESSION_ULTRA_KEY];
+    }
+    return findUltraMode(DEFAULT_ULTRA_MODE) ? DEFAULT_ULTRA_MODE : "75p";
+  }
+
+  function writeUltraMode(ctx, mode) {
+    memState[SESSION_ULTRA_KEY] = mode;
+    if (ctx && ctx.session && typeof ctx.session === "object") {
+      ctx.session[SESSION_ULTRA_KEY] = mode;
+    }
+    if (ctx && ctx.env && typeof ctx.env === "object" && Object.prototype.hasOwnProperty.call(ctx.env, "G1_ULTRA_MODE")) {
+      ctx.env.G1_ULTRA_MODE = mode;
     }
   }
 
@@ -270,20 +374,21 @@ var G1AcqProxyPin = (function () {
   }
 
   function sku(value) {
-    return typeof value === "string" && /^g1\.[A-Za-z0-9._-]{1,160}$/.test(value) ? value : "";
+    return typeof value === "string" &&
+      /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/.test(value) ? value : "";
   }
 
   function rows(value, withTime, defaultTarget) {
     if (!Array.isArray(value)) return [];
     return value.slice(0, SCAN_LIMIT).filter(function (row) {
       return row && typeof row.id === "string" &&
-        /^(?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]{1,160}$/.test(row.id);
+        /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/.test(row.id);
     }).map(function (row) {
       var out = { id: row.id, count: count(row.count) };
       if (withTime) {
         out.lastSeen = text(row.lastSeen, 32);
       } else {
-        out.to = sku(row.to) || (row.id.indexOf(SOURCE_PREFIX) === 0 ? defaultTarget || "" : "");
+        out.to = sku(row.to) || (isProSource(row.id) ? defaultTarget || "" : "");
         out.fallback = row.fallback === true;
       }
       return out;
@@ -342,7 +447,7 @@ var G1AcqProxyPin = (function () {
 
     var byId = Object.create(null);
     var ids = [];
-    var validId = /^(?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]{1,160}$/;
+    var validId = /^(?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]{1,160}$/;
     var oldRows = Array.isArray(saved.skus) ? saved.skus : [];
     oldRows.slice(0, SCAN_LIMIT).forEach(function (row) {
       if (!row || typeof row.id !== "string" || !validId.test(row.id) || byId[row.id]) return;
@@ -364,7 +469,7 @@ var G1AcqProxyPin = (function () {
 
     if (isText) {
       var normalized = originalBody.replace(/\\u002e|\\x2e|&#0*46;|&#x0*2e;|&period;/gi, ".");
-      var token = /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.one\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g;
+      var token = /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g;
       var match;
       while ((match = token.exec(normalized)) !== null) {
         var id = match[2];
@@ -438,19 +543,26 @@ var G1AcqProxyPin = (function () {
     var clearMessage = "";
     var clearOk = false;
 
-    if (parsed.query.set_target && isValidSku(parsed.query.set_target)) {
+    if (parsed.query.set_target && isValidSku(parsed.query.set_target.trim())) {
       var newTarget = parsed.query.set_target.trim();
       writeOverride(ctx, newTarget);
       clearOk = true;
-      clearMessage = "Target penulisan ulang bawaan 2TB/Pro diubah ke: " + newTarget +
-        " (kembali ke Google App dan buka ulang halaman paket untuk memicu penulisan ulang)";
+      clearMessage = "Target penulisan ulang 2TB / AI Pro diubah ke: " + newTarget +
+        " (tutup paksa Google App lalu buka ulang halaman paket untuk memicu penulisan ulang)";
+    } else if (parsed.query.set_ultra && findUltraMode(parsed.query.set_ultra.trim())) {
+      var newUltra = parsed.query.set_ultra.trim();
+      writeUltraMode(ctx, newUltra);
+      clearOk = true;
+      clearMessage = "Mode paket Ultra 20TB / 30TB diubah ke: " + newUltra +
+        " (tutup paksa Google App lalu buka ulang halaman paket untuk memicu penulisan ulang)";
     } else if (parsed.query.clear === "1") {
       writeState(ctx, SESSION_SCAN_KEY, {});
       writeState(ctx, SESSION_TEST_KEY, {});
-      clearMessage = "Dua catatan lokal sesi ProxyPin ini telah dikosongkan.";
+      clearMessage = "Dua catatan lokal sesi ProxyPin ini telah dikosongkan (pengaturan target tetap dipertahankan).";
     }
 
     var configuredTarget = readOverride(ctx);
+    var configuredUltraMode = readUltraMode(ctx);
     var scanRaw = readState(ctx, SESSION_SCAN_KEY) || {};
     if (scanRaw.schemaVersion !== 1) scanRaw = {};
     var testRaw = readState(ctx, SESSION_TEST_KEY) || {};
@@ -460,7 +572,7 @@ var G1AcqProxyPin = (function () {
     var matchedFrom = rows(testRaw.matchedFrom, false, recordedTarget);
     if (!recordedTarget) {
       matchedFrom.some(function (row) {
-        if (row.id.indexOf(SOURCE_PREFIX) === 0 && row.to) {
+        if (isProSource(row.id) && row.to) {
           recordedTarget = row.to;
           return true;
         }
@@ -469,7 +581,7 @@ var G1AcqProxyPin = (function () {
     }
     var annualHitCount = typeof testRaw.annualHitCount === "number" ? count(testRaw.annualHitCount) :
       matchedFrom.reduce(function (total, row) {
-        return total + (row.id.indexOf(SOURCE_PREFIX) === 0 ? row.count : 0);
+        return total + (isProSource(row.id) ? row.count : 0);
       }, 0);
     var storedOrigin = text(testRaw.targetOrigin, 32);
     var targetOrigin = recordedTarget && /^(?:user-specified|pattern-derived|legacy)$/.test(storedOrigin)
@@ -510,6 +622,7 @@ var G1AcqProxyPin = (function () {
       schemaVersion: 1,
       reportVersion: REPORT_VERSION,
       configuredTarget: configuredTarget,
+      configuredUltraMode: configuredUltraMode,
       storageMode: "proxypin-session",
       scan: {
         version: text(scanRaw.version, 32),
@@ -525,9 +638,10 @@ var G1AcqProxyPin = (function () {
       test: {
         version: text(testRaw.version, 32),
         updatedAt: text(testRaw.updatedAt, 32),
-        sourcePrefix: SOURCE_PREFIX,
+        sourcePrefix: SOURCE_PREFIX_LABEL,
         target: recordedTarget,
         targetOrigin: targetOrigin,
+        ultraMode: text(testRaw.ultraMode, 32),
         status: text(testRaw.status, 32),
         hitCount: count(testRaw.hitCount),
         annualHitCount: annualHitCount,
@@ -591,12 +705,24 @@ var G1AcqProxyPin = (function () {
         }).join("") + "</tbody></table></div>";
     }
 
+    function ultraTable() {
+      return "<div class=scroll><table><thead><tr><th>Tag</th><th>Mode</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody>" +
+        ULTRA_MODES.map(function (item) {
+          var active = item.mode === configuredUltraMode;
+          return "<tr" + (active ? " style=\"background:#eef8f2\"" : "") + "><td><strong>" + escapeHtml(item.tag) +
+            "</strong></td><td><code>" + escapeHtml(item.mode) + "</code></td><td>" + escapeHtml(item.label) + "</td><td>" +
+            (active ? "<span class=badge>Sedang Aktif</span>" :
+              "<a href=\"" + ROOT + "?set_ultra=" + encodeURIComponent(item.mode) + "\">Ganti 1-Klik</a>") +
+            "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
     var scanVersionStatus = report.scan.version === VERSION ?
       "Catatan berasal dari skrip ProxyPin sesi aktif; gunakan waktu respons dan hitungan untuk memantau pembaruan." :
       "Belum ada catatan respons pengumpulan pada sesi ProxyPin saat ini.";
     var statuses = {
       "rewritten": "Penggantian string telah dijalankan",
-      "no-match": "Respons kali ini tidak cocok dengan produk sumber pada pemetaan 3 paket",
+      "no-match": "Respons kali ini tidak cocok dengan produk sumber pada pemetaan",
       "non-text": "Respons kali ini tidak memiliki body teks yang dapat diproses"
     };
     var status = Object.prototype.hasOwnProperty.call(statuses, report.test.status)
@@ -617,12 +743,16 @@ var G1AcqProxyPin = (function () {
       "<nav class=actions aria-label=\"Aksi laporan\"><form method=get action=\"" + ROOT + "\"><button type=submit name=format value=json>Ekspor JSON</button></form><a href=\"" + ROOT + "\">Segarkan Laporan</a></nav>",
       noticeHtml,
       "<section><h2>Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik</h2>",
-      "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> yang aktif saat ini: <code><strong>" + escapeHtml(configuredTarget) + "</strong></code></p>",
-      "<p class=note>Ketuk \"Ganti 1-Klik\" pada baris mana pun di bawah untuk mengganti target SKU selama sesi ProxyPin berjalan; untuk mengubah target bawaan secara permanen saat aplikasi ProxyPin dimulai ulang, edit variabel <code>DEFAULT_TARGET</code> di bagian atas skrip <code>g1-acq-proxypin.js</code>. Setelah mengganti, tutup paksa dan buka ulang Google App &rarr; Kelola Google One untuk memicu penulisan ulang SKU baru. Ultra 20TB / 30TB tetap otomatis menggunakan <code>g1.20tb.1month_eft.acq</code> / <code>g1.ai.ultra.1month_eft.acq</code> (dengan fallback otomatis ke diskon 90% / 90p).</p>",
+      "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> &amp; <code>g1.ios.ai.2tb.*</code> aktif saat ini: <code><strong>" + escapeHtml(configuredTarget) + "</strong></code></p>",
+      "<p class=note>Catatan: jika muncul popup \"Pembelian belum selesai, coba pilih paket lagi\", berarti SKU tersebut tidak aktif di StoreKit iOS untuk akun/wilayah Anda (banyak SKU <code>eft</code> berasal dari Google Play). Coba target bertanda <strong>[Rekomendasi iOS]</strong> (<code>com.google.gemini.2tb.ai.m.3month_ip_99p</code>) atau <strong>[Kandidat iOS]</strong> terlebih dahulu. Untuk mengubah bawaan secara permanen, edit <code>DEFAULT_TARGET</code> di atas file <code>g1-acq-proxypin.js</code>.</p>",
       presetTable(), "</section>",
-      "<section><h2>Pemetaan 3 Paket Terakhir</h2>",
-      "<p>Versi: " + escapeHtml(report.test.version || "Belum ada") + "<br>Status: " + escapeHtml(status) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/Pro: " + report.test.annualHitCount + "</p>",
-      "<p>Prefiks sumber 2TB: <code>g1.ios.2tb.</code><br>Target 2TB pada catatan ini: <code>" + escapeHtml(report.test.target || "Belum tercatat") + "</code><br>Waktu eksekusi (UTC): " + escapeHtml(report.test.updatedAt || "Belum ada") + "</p>",
+      "<section><h2>Mode Paket Ultra (20TB / 30TB) 1-Klik</h2>",
+      "<p>Mode Ultra aktif saat ini: <code><strong>" + escapeHtml(configuredUltraMode) + "</strong></code></p>",
+      "<p class=note>SKU Ultra <code>1month_eft.acq</code> &amp; <code>90p</code> sudah banyak ditutup di iOS sehingga memunculkan error \"Pembelian belum selesai\". Gunakan mode <code>75p</code>, <code>gemini99p</code> (ketuk Ultra 20TB untuk membuka promo Pro 99% off), atau <code>off</code>.</p>",
+      ultraTable(), "</section>",
+      "<section><h2>Pemetaan Terakhir</h2>",
+      "<p>Versi: " + escapeHtml(report.test.version || "Belum ada") + "<br>Status: " + escapeHtml(status) + "; Mode Ultra: " + escapeHtml(report.test.ultraMode || configuredUltraMode) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/AI Pro: " + report.test.annualHitCount + "</p>",
+      "<p>Prefiks sumber 2TB / AI Pro: <code>" + escapeHtml(SOURCE_PREFIX_LABEL) + "</code><br>Target 2TB / AI Pro pada catatan ini: <code>" + escapeHtml(report.test.target || "Belum tercatat") + "</code><br>Waktu eksekusi (UTC): " + escapeHtml(report.test.updatedAt || "Belum ada") + "</p>",
       table(report.test.matchedFrom, false), "</section>",
       "<section><h2>Catatan Eksekusi Pengumpulan</h2>",
       "<p>Skrip pengumpul aktual: <code>" + escapeHtml(report.scan.version || "Belum tercatat") + "</code><br>" + scanVersionStatus + "</p>",
@@ -632,7 +762,7 @@ var G1AcqProxyPin = (function () {
       "<section><h2>Kandidat SKU yang Terkumpul Saat Menjelajahi Halaman</h2>",
       table(report.scan.skus, true), "</section>",
       "<form method=get action=\"" + ROOT + "\"><button name=clear value=1>Kosongkan Catatan Pengumpulan &amp; Pengujian Sesi Ini</button></form>",
-      "<p class=note>Atribusi sumber terbuka: Proyek ini dikembangkan dari <a href=\"https://github.com/crhywun/g1-acq\">crhywun/g1-acq</a> dan PR #3 (@cehomecambodia-lang).</p></html>"
+      "<p class=note>Atribusi sumber terbuka: Proyek ini dikembangkan dari <a href=\"https://github.com/crhywun/g1-acq\">crhywun/g1-acq</a>, PR #3 (@cehomecambodia-lang), dan PR #8 (@duwqijlk).</p></html>"
     ].join("");
     return res;
   }
@@ -668,24 +798,28 @@ var G1AcqProxyPin = (function () {
     }
 
     var target = readOverride(ctx);
+    var ultraMode = readUltraMode(ctx);
+    var ultraPreset = findUltraMode(ultraMode) || ULTRA_MODES[0];
+    var ultraMap = ultraPreset.map;
+
     var mappings = Object.create(null);
     var hits = 0;
     var annualHits = 0;
     var out = body;
 
     if (typeof body === "string") {
-      var observed = body.match(/g1\.[a-z0-9._]{2,60}(?:acq|eft|90p|95p|subs_variant|student)/g) || [];
+      var observed = body.match(/(?:g1\.|com\.google\.(?:one|gemini)\.)[a-z0-9._]{2,60}(?:acq|eft|90p|95p|99p|75p|subs_variant|student)/g) || [];
       out = body.replace(
-        /(^|[^A-Za-z0-9._@%-])(g1\.[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g,
+        /(^|[^A-Za-z0-9._@%-])((?:g1\.|com\.google\.(?:one|gemini)\.)[A-Za-z0-9._-]+)(?=$|[^A-Za-z0-9._-])/g,
         function (match, before, id) {
-          var isAnnual = id.indexOf(SOURCE_PREFIX) === 0 && id.length > SOURCE_PREFIX.length;
+          var isAnnual = isProSource(id);
           var to;
           var fallback = false;
           if (isAnnual) {
             to = target;
-          } else if (Object.prototype.hasOwnProperty.call(SKU_MAP, id)) {
-            to = SKU_MAP[id];
-            if (observed.indexOf(to) === -1 && FALLBACK[to] && observed.indexOf(FALLBACK[to]) !== -1) {
+          } else if (Object.prototype.hasOwnProperty.call(ultraMap, id)) {
+            to = ultraMap[id];
+            if (ultraMode === "trial" && observed.indexOf(to) === -1 && FALLBACK[to] && observed.indexOf(FALLBACK[to]) !== -1) {
               to = FALLBACK[to];
               fallback = true;
             }
@@ -708,8 +842,9 @@ var G1AcqProxyPin = (function () {
       schemaVersion: 1,
       version: VERSION,
       updatedAt: new Date().toISOString(),
-      sourcePrefix: SOURCE_PREFIX,
+      sourcePrefix: SOURCE_PREFIX_LABEL,
       target: target,
+      ultraMode: ultraMode,
       targetOrigin: "user-specified",
       hitCount: hits,
       annualHitCount: annualHits,
@@ -718,7 +853,7 @@ var G1AcqProxyPin = (function () {
     };
     writeState(ctx, SESSION_TEST_KEY, record);
 
-    console.log("[g1-acq-proxypin] " + VERSION + " target=" + target + " hits=" + hits + " annualHits=" + annualHits);
+    console.log("[g1-acq-proxypin] " + VERSION + " target=" + target + " ultra=" + ultraMode + " hits=" + hits + " annualHits=" + annualHits);
     sources.forEach(function (source) {
       console.log("[g1-acq-proxypin] " + source.id + " -> " + source.to + " x" + source.count +
         (source.fallback ? " fallback=" + source.to : ""));
@@ -729,7 +864,7 @@ var G1AcqProxyPin = (function () {
       if (!response.headers || typeof response.headers !== "object") {
         response.headers = {};
       }
-      response.headers["X-G1-ACQ-ProxyPin"] = VERSION + "; target=" + target + "; hits=" + hits;
+      response.headers["X-G1-ACQ-ProxyPin"] = VERSION + "; target=" + target + "; ultra=" + ultraMode + "; hits=" + hits;
     }
 
     return response;

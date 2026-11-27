@@ -53,11 +53,12 @@ Jika tidak memiliki Shadowrocket, Anda dapat menggunakan **ProxyPin** (*ProxyPin
   ```text
   https://one.google.com/*
   ```
-- **Ringkasan pemasangan cepat:**
+- **Ringkasan pemasangan cepat (`v8.1.0`):**
   1. Instal **ProxyPin** dari iOS App Store, aktifkan **HTTPS Proxy**, lalu pasang dan percayai penuh (*Full Trust*) sertifikat **ProxyPin CA**.
   2. Di menu **Scripts**, aktifkan **Enable Scripts**, tambah aturan dengan **URL** `https://one.google.com/*` dan masukkan URL **Remote Script** di atas.
-  3. Jalankan VPN ProxyPin, buka Safari ke `https://one.google.com/g1-sku-report` untuk memastikan **`Skrip Lokal ProxyPin Aktif`** tampil, lalu buka ulang **Google App → Kelola Google One**.
-- **Panduan lengkap langkah demi langkah:** lihat [docs/panduan-proxypin.md](docs/panduan-proxypin.md).
+  3. Jalankan VPN ProxyPin, buka Safari ke `https://one.google.com/g1-sku-report` untuk memastikan **`Skrip Lokal ProxyPin Aktif · v8.1.0-proxypin`** tampil, lalu buka ulang **Google App → Kelola Google One**.
+  4. Mulai `v8.1.0`, skrip mencocokkan **`g1.ios.ai.2tb.*`** maupun `g1.ios.2tb.*`, memakai bawaan terverifikasi iOS **`com.google.gemini.2tb.ai.m.3month_ip_99p`** (Pro 5TB diskon 99% 3 bulan), serta menyediakan **Mode Paket Ultra 1-Klik** (`75p` bawaan, `gemini99p`, `off`, dll.) agar tidak memicu error *"Pembelian belum selesai, coba pilih paket lagi"*.
+- **Panduan lengkap langkah demi langkah & pemecahan masalah:** lihat [docs/panduan-proxypin.md](docs/panduan-proxypin.md).
 
 ---
 
