@@ -9,7 +9,7 @@
 "use strict";
 
 (function () {
-  var VERSION = "g1-acq-v8.1";
+  var VERSION = "g1-acq-v8.1.1";
   var PRO_PREFIXES = ["g1.ios.2tb.", "g1.ios.ai.2tb."];
   var SOURCE_PREFIX = "g1.ios.2tb. | g1.ios.ai.2tb.";
   var TARGET_OVERRIDE_KEY = "g1.target.override.v1";
@@ -79,7 +79,7 @@
     console.log("[g1-acq] SKU collection unavailable");
   }
 
-  if (!/^https:\/\/one\.google\.com\/ai\?/.test(url)) {
+  if (!/^https:\/\/one\.google\.com\/(?:u\/\d+\/)?(?:ai|plans|subscribe|upsell|about\/plans)(?:[/?#]|$)/i.test(url)) {
     $done({});
     return;
   }

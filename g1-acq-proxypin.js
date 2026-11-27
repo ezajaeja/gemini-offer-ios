@@ -1,4 +1,4 @@
-/* G1 ACQ Plus (v8.1.0-proxypin) - Skrip ProxyPin (iOS / Android / Desktop)
+/* G1 ACQ Plus (v8.1.1-proxypin) - Skrip ProxyPin (iOS / Android / Desktop)
  * Alternatif gratis tanpa Shadowrocket untuk Google One SKU diskon & uji coba tersembunyi.
  *
  * Pembaruan v8.1.0:
@@ -56,8 +56,8 @@ var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
 var DEFAULT_ULTRA_MODE = "75p";
 
 var G1AcqProxyPin = (function () {
-  var VERSION = "g1-acq-v8.1-proxypin";
-  var REPORT_VERSION = "v8.1.0-proxypin";
+  var VERSION = "g1-acq-v8.1.1-proxypin";
+  var REPORT_VERSION = "v8.1.1-proxypin";
   var ROOT = "https://one.google.com/g1-sku-report";
   var PRO_PREFIXES = ["g1.ios.2tb.", "g1.ios.ai.2tb."];
   var SOURCE_PREFIX_LABEL = "g1.ios.2tb. | g1.ios.ai.2tb.";
@@ -397,6 +397,7 @@ var G1AcqProxyPin = (function () {
 
   function safeRoute(path) {
     var cleanPath = String(path || "/").replace(/\/+$/, "") || "/";
+    cleanPath = cleanPath.replace(/^\/u\/\d+(?=\/|$)/, "") || "/";
     if (cleanPath === "/" || cleanPath === "/ai" || cleanPath === "/plans") return cleanPath;
     if (/^\/_\/[^?#]+\/data\/batchexecute$/.test(cleanPath)) return BATCH_PATH_LABEL;
     return OTHER_PATH_LABEL;
@@ -791,9 +792,8 @@ var G1AcqProxyPin = (function () {
       console.log("[g1-acq-proxypin] SKU collection unavailable");
     }
 
-    var isAiEndpoint = /^https:\/\/one\.google\.com\/ai\?/i.test(parsed.url) ||
-      (parsed.path === "/ai" && parsed.hasQuery);
-    if (!isAiEndpoint) {
+    var isTargetEndpoint = /^\/(?:u\/\d+\/)?(?:ai|plans|subscribe|upsell|about\/plans)\/?$/i.test(parsed.path);
+    if (!isTargetEndpoint) {
       return response;
     }
 

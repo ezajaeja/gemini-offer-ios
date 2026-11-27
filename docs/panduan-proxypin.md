@@ -151,3 +151,22 @@ Jika Anda hanya ingin menguji satu penggantian SKU sederhana tanpa memakai menu 
     dengan nilai `hits` lebih dari `0`.
 - **Setelah selesai digunakan:**
   - Ketuk **Stop** pada ProxyPin agar trafik harian iPhone tidak terus melewati proxy lokal.
+
+---
+
+## Panduan Khusus Paket Ultra Turki (`mode: tr`)
+
+Mode **`tr`** mengarahkan SKU Ultra ke nomor katalog regional lama Apple App Store (`g1.ios.20tb.m` & `g1.ios.30tb.m`) agar memakai tarif Lira Turki (**`₺1.989,99/bulan`** untuk 20TB atau **`₺2.949,99/bulan`** untuk 30TB) saat dibeli melalui **Apple ID Region Türkiye**.
+
+> **Penting sebelum membeli Gift Card:** Pastikan harga Lira (`₺`) sudah tampil di pop-up resmi App Store (uji dengan saldo ₺0 terlebih dahulu) sebelum membeli kode Apple Gift Card Türkiye, dan **jangan pernah keluar (logout) dari iCloud utama iPhone**—cukup ganti akun di aplikasi **App Store** saja.
+
+1. **Buat Apple ID Türkiye:** Daftar akun baru di `account.apple.com` dengan negara **Türkiye**, metode pembayaran **None** (jika diminta saat login App Store pertama kali), dan alamat kota Istanbul/Ankara acak.
+2. **Login Khusus di App Store:** Buka aplikasi **App Store → foto profil kanan atas → gulir ke bawah → Sign Out**, lalu masuk dengan Apple ID Türkiye tersebut.
+3. **Aktifkan Mode `tr` di ProxyPin (`v8.1.1-proxypin`):**
+   - Perbarui cache skrip di ProxyPin (**Scripts → G1 ACQ Plus → Save** atau tutup paksa & buka ulang ProxyPin), lalu nyalakan VPN ProxyPin.
+   - Buka Safari ke `https://one.google.com/g1-sku-report`, pastikan tampil **`v8.1.1-proxypin`**, lalu pada tabel **Mode Paket Ultra (20TB / 30TB) 1-Klik**, tekan **`Ganti 1-Klik`** di baris **`tr`**.
+4. **Cek Pop-up Harga di Google App / Google One App:**
+   - Tutup paksa aplikasi **Google App** atau **Google One**, buka ulang, pilih paket **Ultra 20TB** atau **Ultra 30TB**, dan pastikan pop-up App Store menampilkan harga dalam **₺ (TRY)**.
+5. **Bayar dengan Apple Gift Card Türkiye (TRY):**
+   - Beli kode digital **Apple Gift Card Türkiye (TL/TRY)** dari penjual tepercaya (mis. Turgame, Eneba, G2A, SEAGM), tukarkan lewat **App Store → foto profil → Redeem Gift Card or Code**, lalu ulangi konfirmasi langganan Ultra.
+   - Setelah aktif, ketuk **Stop** di ProxyPin dan Anda dapat login kembali ke Apple ID Indonesia di App Store.

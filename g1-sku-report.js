@@ -8,8 +8,8 @@
 
 (function () {
   var ROOT = "https://one.google.com/g1-sku-report";
-  var VERSION = "v8.1.0";
-  var COLLECTOR_VERSION = "g1-acq-v8.1";
+  var VERSION = "v8.1.1";
+  var COLLECTOR_VERSION = "g1-acq-v8.1.1";
   var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
   var TARGET_OVERRIDE_KEY = "g1.target.override.v1";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
