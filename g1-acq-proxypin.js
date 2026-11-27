@@ -1,4 +1,4 @@
-/* G1 ACQ Plus (v8.1.1-proxypin) - Skrip ProxyPin (iOS / Android / Desktop)
+/* G1 ACQ Plus (v8.2.0-proxypin) - Skrip ProxyPin (iOS / Android / Desktop)
  * Alternatif gratis tanpa Shadowrocket untuk Google One SKU diskon & uji coba tersembunyi.
  *
  * Pembaruan v8.1.0:
@@ -56,14 +56,15 @@ var DEFAULT_TARGET = "com.google.gemini.2tb.ai.m.3month_ip_99p";
 var DEFAULT_ULTRA_MODE = "75p";
 
 var G1AcqProxyPin = (function () {
-  var VERSION = "g1-acq-v8.1.1-proxypin";
-  var REPORT_VERSION = "v8.1.1-proxypin";
+  var VERSION = "g1-acq-v8.2.0-proxypin";
+  var REPORT_VERSION = "v8.2.0-proxypin";
   var ROOT = "https://one.google.com/g1-sku-report";
   var PRO_PREFIXES = ["g1.ios.2tb.", "g1.ios.ai.2tb."];
   var SOURCE_PREFIX_LABEL = "g1.ios.2tb. | g1.ios.ai.2tb.";
   var LEGACY_TARGET = "g1.2tb.ai.annual";
   var SESSION_OVERRIDE_KEY = "g1_target_override";
   var SESSION_ULTRA_KEY = "g1_ultra_mode";
+  var SESSION_ULTRA_SKU_KEY = "g1_ultra_custom_sku";
   var SESSION_SCAN_KEY = "g1_scan_state";
   var SESSION_TEST_KEY = "g1_test_record";
   var SCAN_LIMIT = 300;
@@ -132,6 +133,7 @@ var G1AcqProxyPin = (function () {
 
   var PRESET_SKUS = [
     { sku: "com.google.gemini.2tb.ai.m.3month_ip_99p", label: "[Rekomendasi iOS] Pro 5TB - Diskon 99% 3 bulan (com.google.gemini...99p)", tag: "iOS 99% OFF" },
+    { sku: "g1.ios.2tb.y", label: "[Khusus Turki iOS] Penyimpanan 2TB Tahunan Lama (TRY 499.99/tahun)", tag: "TR 2TB/THN" },
     { sku: "g1.2tb.ai.12months_ip_90p", label: "[Kandidat iOS] Pro 5TB - Diskon 90% 12 bulan ($1.99/bln x 12 = $23.88)", tag: "iOS $1.99x12M" },
     { sku: "g1.2tb.ai.18months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 18 bulan (eft-18months)", tag: "FREE 18M" },
     { sku: "g1.2tb.ai.15months_eft", label: "[Uji Play/iOS] Pro 5TB - Uji coba gratis $0 15 bulan (eft-15months)", tag: "FREE 15M" },
@@ -152,7 +154,8 @@ var G1AcqProxyPin = (function () {
     { sku: "g1.helium.12months_ip_90p", label: "[Uji Play/iOS] AI Plus 400GB - Diskon 90% 12 bulan ($0.49/bln x 12 = $5.88/thn)", tag: "$0.49x12M" },
     { sku: "g1.100gb.1year_eft", label: "[Uji Play/iOS] Penyimpanan 100GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
     { sku: "g1.100gb.9months_eft", label: "[Uji Play/iOS] Penyimpanan 100GB - Uji coba gratis $0 9 bulan (9months_eft)", tag: "FREE 9M" },
-    { sku: "g1.200gb.1year_eft", label: "[Uji Play/iOS] Penyimpanan 200GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" }
+    { sku: "g1.200gb.1year_eft", label: "[Uji Play/iOS] Penyimpanan 200GB - Uji coba gratis $0 12 bulan (1year_eft)", tag: "FREE 12M" },
+    { sku: "g1.youtube_premium_individual_add_on", label: "[Play Add-on] YouTube Premium Individual - Gratis $0 1 bulan (eft-1mo)", tag: "YT FREE 1M" }
   ];
 
   var memState = {};
@@ -242,17 +245,38 @@ var G1AcqProxyPin = (function () {
     }
   }
 
+  function readUltraCustomSku(ctx) {
+    if (ctx && ctx.session && typeof ctx.session[SESSION_ULTRA_SKU_KEY] === "string") {
+      var sVal = ctx.session[SESSION_ULTRA_SKU_KEY].trim();
+      if (isValidSku(sVal)) return sVal;
+    }
+    if (typeof memState[SESSION_ULTRA_SKU_KEY] === "string" && isValidSku(memState[SESSION_ULTRA_SKU_KEY])) {
+      return memState[SESSION_ULTRA_SKU_KEY];
+    }
+    return "";
+  }
+
+  function writeUltraCustomSku(ctx, customSku) {
+    memState[SESSION_ULTRA_SKU_KEY] = customSku;
+    if (ctx && ctx.session && typeof ctx.session === "object") {
+      ctx.session[SESSION_ULTRA_SKU_KEY] = customSku;
+    }
+  }
+
   function readUltraMode(ctx) {
     if (ctx && ctx.session && typeof ctx.session[SESSION_ULTRA_KEY] === "string") {
       var sMode = ctx.session[SESSION_ULTRA_KEY].trim();
+      if (sMode === "custom" && readUltraCustomSku(ctx)) return "custom";
       if (findUltraMode(sMode)) return sMode;
     }
     if (ctx && ctx.env && typeof ctx.env.G1_ULTRA_MODE === "string") {
       var eMode = ctx.env.G1_ULTRA_MODE.trim();
+      if (eMode === "custom" && readUltraCustomSku(ctx)) return "custom";
       if (findUltraMode(eMode)) return eMode;
     }
-    if (typeof memState[SESSION_ULTRA_KEY] === "string" && findUltraMode(memState[SESSION_ULTRA_KEY])) {
-      return memState[SESSION_ULTRA_KEY];
+    if (typeof memState[SESSION_ULTRA_KEY] === "string") {
+      if (memState[SESSION_ULTRA_KEY] === "custom" && readUltraCustomSku(ctx)) return "custom";
+      if (findUltraMode(memState[SESSION_ULTRA_KEY])) return memState[SESSION_ULTRA_KEY];
     }
     return findUltraMode(DEFAULT_ULTRA_MODE) ? DEFAULT_ULTRA_MODE : "75p";
   }
@@ -550,6 +574,13 @@ var G1AcqProxyPin = (function () {
       clearOk = true;
       clearMessage = "Target penulisan ulang 2TB / AI Pro diubah ke: " + newTarget +
         " (tutup paksa Google App lalu buka ulang halaman paket untuk memicu penulisan ulang)";
+    } else if (parsed.query.set_ultra_sku && isValidSku(parsed.query.set_ultra_sku.trim())) {
+      var newUltraSku = parsed.query.set_ultra_sku.trim();
+      writeUltraCustomSku(ctx, newUltraSku);
+      writeUltraMode(ctx, "custom");
+      clearOk = true;
+      clearMessage = "SKU Ultra kustom (20TB & 30TB) diubah ke: " + newUltraSku +
+        " (tutup paksa Google App lalu buka ulang halaman paket untuk memicu penulisan ulang)";
     } else if (parsed.query.set_ultra && findUltraMode(parsed.query.set_ultra.trim())) {
       var newUltra = parsed.query.set_ultra.trim();
       writeUltraMode(ctx, newUltra);
@@ -564,6 +595,7 @@ var G1AcqProxyPin = (function () {
 
     var configuredTarget = readOverride(ctx);
     var configuredUltraMode = readUltraMode(ctx);
+    var configuredUltraCustomSku = readUltraCustomSku(ctx);
     var scanRaw = readState(ctx, SESSION_SCAN_KEY) || {};
     if (scanRaw.schemaVersion !== 1) scanRaw = {};
     var testRaw = readState(ctx, SESSION_TEST_KEY) || {};
@@ -624,6 +656,7 @@ var G1AcqProxyPin = (function () {
       reportVersion: REPORT_VERSION,
       configuredTarget: configuredTarget,
       configuredUltraMode: configuredUltraMode,
+      configuredUltraCustomSku: configuredUltraCustomSku,
       storageMode: "proxypin-session",
       scan: {
         version: text(scanRaw.version, 32),
@@ -657,7 +690,7 @@ var G1AcqProxyPin = (function () {
       "Cache-Control": "no-store",
       "X-G1-Report-Version": REPORT_VERSION,
       "X-Content-Type-Options": "nosniff",
-      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://one.google.com; base-uri 'none'; frame-ancestors 'none'"
     };
 
     if (exportJSON) {
@@ -746,10 +779,17 @@ var G1AcqProxyPin = (function () {
       "<section><h2>Ganti Target SKU Tersembunyi 2TB / Pro 5TB 1-Klik</h2>",
       "<p>Target penulisan ulang <code>g1.ios.2tb.*</code> &amp; <code>g1.ios.ai.2tb.*</code> aktif saat ini: <code><strong>" + escapeHtml(configuredTarget) + "</strong></code></p>",
       "<p class=note>Catatan: jika muncul popup \"Pembelian belum selesai, coba pilih paket lagi\", berarti SKU tersebut tidak aktif di StoreKit iOS untuk akun/wilayah Anda (banyak SKU <code>eft</code> berasal dari Google Play). Coba target bertanda <strong>[Rekomendasi iOS]</strong> (<code>com.google.gemini.2tb.ai.m.3month_ip_99p</code>) atau <strong>[Kandidat iOS]</strong> terlebih dahulu. Untuk mengubah bawaan secara permanen, edit <code>DEFAULT_TARGET</code> di atas file <code>g1-acq-proxypin.js</code>.</p>",
+      "<form method=get action=\"" + ROOT + "\" style=\"margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center\">",
+      "<input type=text name=set_target placeholder=\"Contoh: g1.ios.2tb.y atau com.google.gemini...\" style=\"padding:8px;width:280px;max-width:100%;border:1px solid #ccc;border-radius:6px\">",
+      "<button type=submit>Terapkan SKU Pro Kustom</button></form>",
       presetTable(), "</section>",
       "<section><h2>Mode Paket Ultra (20TB / 30TB) 1-Klik</h2>",
-      "<p>Mode Ultra aktif saat ini: <code><strong>" + escapeHtml(configuredUltraMode) + "</strong></code></p>",
-      "<p class=note>SKU Ultra <code>1month_eft.acq</code> &amp; <code>90p</code> sudah banyak ditutup di iOS sehingga memunculkan error \"Pembelian belum selesai\". Gunakan mode <code>75p</code>, <code>gemini99p</code> (ketuk Ultra 20TB untuk membuka promo Pro 99% off), atau <code>off</code>.</p>",
+      "<p>Mode Ultra aktif saat ini: <code><strong>" + escapeHtml(configuredUltraMode) + "</strong></code>" +
+      (configuredUltraMode === "custom" && configuredUltraCustomSku ? " &mdash; SKU Kustom: <code><strong>" + escapeHtml(configuredUltraCustomSku) + "</strong></code>" : "") + "</p>",
+      "<p class=note>SKU Ultra <code>1month_eft.acq</code> &amp; <code>90p</code> sudah banyak ditutup di iOS sehingga memunculkan error \"Pembelian belum selesai\". Gunakan mode <code>75p</code>, <code>tr</code> (khusus Apple ID Turki), <code>gemini99p</code> (ketuk Ultra 20TB untuk membuka promo Pro 99% off), <code>off</code>, atau uji SKU kustom di bawah.</p>",
+      "<form method=get action=\"" + ROOT + "\" style=\"margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center\">",
+      "<input type=text name=set_ultra_sku placeholder=\"Contoh: com.google.gemini.20tb.m.3month_ip_99p\" style=\"padding:8px;width:280px;max-width:100%;border:1px solid #ccc;border-radius:6px\">",
+      "<button type=submit>Uji SKU Ultra Kustom</button></form>",
       ultraTable(), "</section>",
       "<section><h2>Pemetaan Terakhir</h2>",
       "<p>Versi: " + escapeHtml(report.test.version || "Belum ada") + "<br>Status: " + escapeHtml(status) + "; Mode Ultra: " + escapeHtml(report.test.ultraMode || configuredUltraMode) + "; Total penggantian: " + report.test.hitCount + "; Di antaranya 2TB/AI Pro: " + report.test.annualHitCount + "</p>",
@@ -799,8 +839,17 @@ var G1AcqProxyPin = (function () {
 
     var target = readOverride(ctx);
     var ultraMode = readUltraMode(ctx);
-    var ultraPreset = findUltraMode(ultraMode) || ULTRA_MODES[0];
-    var ultraMap = ultraPreset.map;
+    var ultraMap;
+    if (ultraMode === "custom") {
+      var customUltraSku = readUltraCustomSku(ctx);
+      ultraMap = customUltraSku ? {
+        "g1.ios.20tb.m.v2": customUltraSku,
+        "g1.ios.30tb.ai.pro.m": customUltraSku
+      } : {};
+    } else {
+      var ultraPreset = findUltraMode(ultraMode) || ULTRA_MODES[0];
+      ultraMap = ultraPreset.map;
+    }
 
     var mappings = Object.create(null);
     var hits = 0;

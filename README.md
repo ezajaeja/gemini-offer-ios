@@ -64,6 +64,8 @@ Jika tidak memiliki Shadowrocket, Anda dapat menggunakan **ProxyPin** (*ProxyPin
 
 ## 3. Daftar SKU Tersembunyi Utama Hasil Pemindaian Penuh
 
+> **Katalog Lengkap (130+ SKU & Harga 46 Negara):** Untuk daftar lengkap seluruh SKU yang belum tercantum di tabel ringkas di bawah (termasuk 76 kolam OEM `.1`–`.30`, harga App Store Turki/India/Nigeria, serta 90+ SKU promo & trial dari `sku-catalog.json`), lihat [**docs/katalog-sku-lengkap.md**](docs/katalog-sku-lengkap.md).
+
 ### 1. Google AI Pro (5 TB) — Seri Uji Coba Gratis \$0 & Harga Promo Spesial
 
 | SKU Tersembunyi (Product ID) | Base Plan | Offer ID | Detail Promo | Harga Perpanjangan Normal |
