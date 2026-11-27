@@ -41,6 +41,26 @@ https://raw.githubusercontent.com/ezajaeja/gemini-offer-ios/main/g1-acq-v8.sgmod
 
 ---
 
+## 2B. Alternatif Gratis Tanpa Shadowrocket: ProxyPin (iOS / Android / Desktop)
+
+Jika tidak memiliki Shadowrocket, Anda dapat menggunakan **ProxyPin** (*ProxyPin - Open Source Capture*, 100% gratis dan sumber terbuka di App Store) dengan skrip khusus [`g1-acq-proxypin.js`](g1-acq-proxypin.js):
+
+- **URL Remote Script (ProxyPin → Scripts → Load Remote Script):**
+  ```text
+  https://raw.githubusercontent.com/ezajaeja/gemini-offer-ios/main/g1-acq-proxypin.js
+  ```
+- **URL Match Rule di ProxyPin:**
+  ```text
+  https://one.google.com/*
+  ```
+- **Ringkasan pemasangan cepat:**
+  1. Instal **ProxyPin** dari iOS App Store, aktifkan **HTTPS Proxy**, lalu pasang dan percayai penuh (*Full Trust*) sertifikat **ProxyPin CA**.
+  2. Di menu **Scripts**, aktifkan **Enable Scripts**, tambah aturan dengan **URL** `https://one.google.com/*` dan masukkan URL **Remote Script** di atas.
+  3. Jalankan VPN ProxyPin, buka Safari ke `https://one.google.com/g1-sku-report` untuk memastikan **`Skrip Lokal ProxyPin Aktif`** tampil, lalu buka ulang **Google App → Kelola Google One**.
+- **Panduan lengkap langkah demi langkah:** lihat [docs/panduan-proxypin.md](docs/panduan-proxypin.md).
+
+---
+
 ## 3. Daftar SKU Tersembunyi Utama Hasil Pemindaian Penuh
 
 ### 1. Google AI Pro (5 TB) — Seri Uji Coba Gratis \$0 & Harga Promo Spesial
